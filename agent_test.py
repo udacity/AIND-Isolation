@@ -140,11 +140,11 @@ def makeEvalStop(limit, timer, value=None):
     """
 
     def score(game, player):
-        if limit == game.counts[0]:
-            timer.time_limit = 0
-        elif timer.time_left() < 0:
+        if timer.time_left() < 0:
             raise TimeoutError("Timer expired during search. You must " +
                                "return an answer before the timer reaches 0.")
+        if limit == game.counts[0]:
+            timer.time_limit = 0
         return 0
 
     return score
