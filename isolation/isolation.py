@@ -266,14 +266,17 @@ class Board(object):
         return valid_moves
 
     def print_board(self):
-        """
-        Generate a string representation of the current game state, marking
+        """DEPRECATED - use Board.to_string()"""
+        return self.to_string()
+
+    def to_string(self):
+        """Generate a string representation of the current game state, marking
         the location of each player and indicating which cells have been
         blocked, and which remain open.
         """
 
-        p1_r, p1_c = self.__last_player_move__[self.__player_1__]
-        p2_r, p2_c = self.__last_player_move__[self.__player_2__]
+        p1_loc = self.__last_player_move__[self.__player_1__]
+        p2_loc = self.__last_player_move__[self.__player_2__]
 
         out = ''
 
@@ -284,9 +287,9 @@ class Board(object):
 
                 if not self.__board_state__[i][j]:
                     out += ' '
-                elif i == p1_r and j == p1_c:
+                elif p1_loc and i == p1_loc[0] and j == p1_loc[1]:
                     out += '1'
-                elif i == p2_r and j == p2_c:
+                elif p2_loc and i == p2_loc[0] and j == p2_loc[1]:
                     out += '2'
                 else:
                     out += '-'
