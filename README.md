@@ -52,4 +52,16 @@ The `agent_test.py` script contains unittest test cases to evaluate your impleme
 
 ### Tournament
 
-The `tournament.py` script will run a round-robin tournament between your CustomPlayer agent with itertive deepening and your custom heuristic function against several calibrated agent configurations using fixed-depth minimax and alpha-beta search with the example heuristics provided in `sample_players.py`.
+The `tournament.py` script is used to evaluate the effectiveness of your custom_score heuristic.  The script measures relative performance of your agent (called "Student") in a round-robin tournament against several other pre-defined agents.  The Student agent uses time-limited Iterative Deepening and the custom_score heuristic you wrote.
+
+The performance of time-limited iterative deepening search is hardware dependent (faster hardware is expected to search deeper than slower hardware in the same amount of time).  The script controls for these effects by also measuring the baseline performance of an agent called "ID_Improved" that uess Iterative Deepening and the improved_score heuristic from `sample_players.py`.  Your goal is to develop a heuristic such that Student outperforms ID_Improved.
+
+The tournament opponents are listed below. (See also: sample heuristics and players defined in sample_players.py)
+
+- Random: An agent that randomly chooses a move each turn.
+- MM_Null: CustomPlayer agent using fixed-depth minimax search and the null_score heuristic
+- MM_Open: CustomPlayer agent using fixed-depth minimax search and the open_move_score heuristic
+- MM_Improved: CustomPlayer agent using fixed-depth minimax search and the improved_score heuristic
+- AB_Null: CustomPlayer agent using fixed-depth alpha-beta search and the null_score heuristic
+- AB_Open: CustomPlayer agent using fixed-depth alpha-beta search and the open_move_score heuristic
+- AB_Improved: CustomPlayer agent using fixed-depth alpha-beta search and the improved_score heuristic
