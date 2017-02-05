@@ -18,6 +18,9 @@ def custom_score(game, player):
     """Calculate the heuristic value of a game state from the point of view
     of the given player.
 
+    Note: this function should be called from within a Player instance as
+    `self.score()` -- you should not need to call this function directly.
+
     Parameters
     ----------
     game : `isolation.Board`
@@ -29,7 +32,7 @@ def custom_score(game, player):
         one of the player objects `game.__player_1__` or `game.__player_2__`.)
 
     Returns
-    ----------
+    -------
     float
         The heuristic value of the current game state to the specified player.
     """
@@ -107,7 +110,7 @@ class CustomPlayer:
             the game.
 
         Returns
-        ----------
+        -------
         (int, int)
             Board coordinates corresponding to a legal move; may return
             (-1, -1) if there are no available legal moves.
@@ -153,12 +156,18 @@ class CustomPlayer:
             maximizing layer (True) or a minimizing layer (False)
 
         Returns
-        ----------
+        -------
         float
             The score for the current search branch
 
         tuple(int, int)
             The best move for the current branch; (-1, -1) for no legal moves
+
+        Notes
+        -----
+            (1) You MUST use the `self.score()` method for board evaluation
+                to pass the project unit tests; you cannot call any other
+                evaluation function directly.
         """
         if self.time_left() < self.TIMER_THRESHOLD:
             raise Timeout()
@@ -191,12 +200,18 @@ class CustomPlayer:
             maximizing layer (True) or a minimizing layer (False)
 
         Returns
-        ----------
+        -------
         float
             The score for the current search branch
 
         tuple(int, int)
             The best move for the current branch; (-1, -1) for no legal moves
+
+        Notes
+        -----
+            (1) You MUST use the `self.score()` method for board evaluation
+                to pass the project unit tests; you cannot call any other
+                evaluation function directly.
         """
         if self.time_left() < self.TIMER_THRESHOLD:
             raise Timeout()
