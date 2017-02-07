@@ -202,7 +202,7 @@ class Board(object):
         last_move_idx = int(self.active_player == self._player_2) + 1
         self._board_state[-last_move_idx] = idx
         self._board_state[idx] = 1
-        self._board_state[-2] ^= 1
+        self._board_state[-3] ^= 1
         self._active_player, self._inactive_player = self._inactive_player, self._active_player
         self.move_count += 1
 
@@ -272,9 +272,12 @@ class Board(object):
         p1_loc = self._board_state[-1]
         p2_loc = self._board_state[-2]
 
-        out = ''
+        col_margin = len(str(self.height - 1)) + 1
+        prefix = "{:<" + "{}".format(col_margin) + "}"
+        offset = " " * (col_margin + 3)
+        out = offset + '   '.join(map(str, range(self.width))) + '\n\r'
         for i in range(self.height):
-            out += ' | '
+            out += prefix.format(i) + ' | '
             for j in range(self.width):
                 idx = i + j * self.height
                 if not self._board_state[idx]:
