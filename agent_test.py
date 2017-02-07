@@ -185,14 +185,12 @@ class CounterBoard(isolation.Board):
         self.root = None
 
     def copy(self):
-        new_board = CounterBoard(self.__player_1__, self.__player_2__,
+        new_board = CounterBoard(self._player_1, self._player_2,
                                  width=self.width, height=self.height)
         new_board.move_count = self.move_count
-        new_board.__active_player__ = self.__active_player__
-        new_board.__inactive_player__ = self.__inactive_player__
-        new_board.__last_player_move__ = copy(self.__last_player_move__)
-        new_board.__player_symbols__ = copy(self.__player_symbols__)
-        new_board.__board_state__ = deepcopy(self.__board_state__)
+        new_board._active_player = self._active_player
+        new_board._inactive_player = self._inactive_player
+        new_board._board_state = copy(self._board_state)
         new_board.counter = self.counter
         new_board.visited = self.visited
         new_board.root = self.root
@@ -230,7 +228,7 @@ class Project1Test(unittest.TestCase):
     @timeout(5)
     # @unittest.skip("Skip eval function test.")  # Uncomment this line to skip test
     def test_heuristic(self):
-        """ Test output interface of heuristic score function interface."""
+        """Test output interface of evaluation heuristic """
 
         player1 = "Player1"
         player2 = "Player2"
@@ -246,7 +244,7 @@ class Project1Test(unittest.TestCase):
     timeout(5)
     # @unittest.skip("Skip simple minimax test.")  # Uncomment this line to skip test
     def test_minimax_interface(self):
-        """ Test CustomPlayer.minimax interface with simple input """
+        """Test CustomPlayer.minimax interface """
         h, w = 7, 7  # board size
         test_depth = 1
         starting_location = (5, 3)
@@ -277,7 +275,7 @@ class Project1Test(unittest.TestCase):
     timeout(5)
     # @unittest.skip("Skip alphabeta test.")  # Uncomment this line to skip test
     def test_alphabeta_interface(self):
-        """ Test CustomPlayer.alphabeta interface with simple input """
+        """Test CustomPlayer.alphabeta interface """
         h, w = 9, 9  # board size
         test_depth = 1
         starting_location = (2, 7)
@@ -308,7 +306,7 @@ class Project1Test(unittest.TestCase):
     @timeout(5)
     # @unittest.skip("Skip get_move test.")  # Uncomment this line to skip test
     def test_get_move_interface(self):
-        """ Test CustomPlayer.get_move interface with simple input """
+        """Test CustomPlayer.get_move interface """
         h, w = 9, 9  # board size
         test_depth = 1
         starting_location = (2, 7)
@@ -360,7 +358,7 @@ class Project1Test(unittest.TestCase):
     @timeout(5)
     # @unittest.skip("Skip minimax test.")  # Uncomment this line to skip test
     def test_minimax(self):
-        """ Test CustomPlayer.minimax
+        """Test CustomPlayer.minimax
 
         This test uses a scoring function that returns a constant value based
         on the location of the search agent on the board to force minimax to
@@ -425,7 +423,7 @@ class Project1Test(unittest.TestCase):
     @timeout(20)
     # @unittest.skip("Skip alpha-beta test.")  # Uncomment this line to skip test
     def test_alphabeta(self):
-        """ Test CustomPlayer.alphabeta
+        """Test CustomPlayer.alphabeta
 
         This test uses a scoring function that returns a constant value based
         on the branch being searched by alphabeta in the user agent, and forces
@@ -480,10 +478,11 @@ class Project1Test(unittest.TestCase):
     @timeout(20)
     # @unittest.skip("Skip iterative deepening test.")  # Uncomment this line to skip test
     def test_get_move(self):
-        """ Test iterative deepening in CustomPlayer.get_move by placing an
-        agent on the game board and performing ID minimax search, which
-        should visit a specific number of unique nodes while expanding. By
-        forcing the search to timeout when a predetermined number of nodes
+        """Test iterative deepening in CustomPlayer.get_move()
+
+        Place an agent on the game board and performing ID minimax search,
+        which should visit a specific number of unique nodes while expanding.
+        By forcing the search to timeout when a predetermined number of nodes
         have been expanded, we can then verify that the expected number of
         unique nodes have been visited.
         """
