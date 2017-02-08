@@ -37,8 +37,11 @@ def custom_score(game, player):
         The heuristic value of the current game state to the specified player.
     """
 
-    # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_loser(player):
+        return float("-inf")
+    if game.is_winner(player):
+        return float("inf")
+    return float(len(game.get_legal_moves(player)))
 
 
 class CustomPlayer:
@@ -172,8 +175,21 @@ class CustomPlayer:
         if self.time_left() < self.TIMER_THRESHOLD:
             raise Timeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        legal_moves = game.get_legal_moves()
+
+        if len(legal_moves) == 0:
+            return self.score(game, self), (-1, -1)
+        if depth == 0:
+            return self.score(game, self), game.get_player_location(self)
+
+        score = 0
+        move = (-1, -1)
+        if maximizing_player:
+            score, move = max((self.minimax(game.forecast_move(move), depth - 1, not maximizing_player)[0], move) for move in legal_moves)
+        else:
+            score, move = min((self.minimax(game.forecast_move(move), depth - 1, not maximizing_player)[0], move) for move in legal_moves)
+
+        return score, move
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf"), maximizing_player=True):
         """Implement minimax search with alpha-beta pruning as described in the
