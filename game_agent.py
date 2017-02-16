@@ -118,28 +118,37 @@ class CustomPlayer:
             Board coordinates corresponding to a legal move; may return
             (-1, -1) if there are no available legal moves.
         """
-
         self.time_left = time_left
+        best_move = (-1, -1)
 
-        # TODO: finish this function!
+        if not legal_moves:
+            return (-1, -1)
 
-        # Perform any required initializations, including selecting an initial
-        # move from the game board (i.e., an opening book), or returning
-        # immediately if there are no legal moves
+        if not game.get_player_location(game.active_player):
+            opening_move = (game.height // 2, game.width // 2)
+            if opening_move in legal_moves:
+                return opening_move
+
+            second_opening_move = (opening_move[0] - 1, opening_move[1])
+            if second_opening_move in legal_moves:
+                return second_opening_move
 
         try:
-            # The search method call (alpha beta or minimax) should happen in
-            # here in order to avoid timeout. The try/except block will
-            # automatically catch the exception raised by the search method
-            # when the timer gets close to expiring
-            pass
+            if self.iterative:
+                iterative_depth = 1
+                best_score = 0
+
+                while True:
+                    score, move = getattr(self, self.method)(game, iterative_depth)
+                    best_score, best_move = max((score, move), (best_score, best_move))
+                    iterative_depth += 1
+            else:
+                _, best_move = getattr(self, self.method)(game, self.search_depth)
 
         except Timeout:
-            # Handle any actions required at timeout, if necessary
             pass
+        return best_move
 
-        # Return the best move from the last completed search iteration
-        raise NotImplementedError
 
     def minimax(self, game, depth, maximizing_player=True):
         """Implement the minimax search algorithm as described in the lectures.
@@ -177,7 +186,7 @@ class CustomPlayer:
 
         legal_moves = game.get_legal_moves()
 
-        if len(legal_moves) == 0:
+        if not legal_moves:
             return self.score(game, self), (-1, -1)
         if depth == 0:
             return self.score(game, self), game.get_player_location(self)
