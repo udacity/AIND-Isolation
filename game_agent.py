@@ -6,7 +6,7 @@ augment the test suite with your own test cases to further test your code.
 You must test your agent's strength against a set of agents with known
 relative strength using tournament.py and include the results in your report.
 """
-import random
+
 
 
 class Timeout(Exception):
@@ -43,6 +43,26 @@ def custom_score(game, player):
         return float("inf")
     return float(len(game.get_legal_moves(player)))
 
+def custom_score_2(game, player):
+    if game.is_loser(player):
+        return float("-inf")
+    if game.is_winner(player):
+        return float("inf")
+    return float(len(game.get_legal_moves(player)) - len(game.get_legal_moves(game.get_opponent(player))))
+
+def custom_score_3(game, player):
+    if game.is_loser(player):
+        return float("-inf")
+    if game.is_winner(player):
+        return float("inf")
+    return float(len(game.get_legal_moves(player)) - len(game.get_legal_moves(game.get_opponent(player))) ** 2)
+
+def custom_score_4(game, player):
+    if game.is_loser(player):
+        return float("-inf")
+    if game.is_winner(player):
+        return float("inf")
+    return float((len(game.get_legal_moves(player)) ** 2) - len(game.get_legal_moves(game.get_opponent(player))))
 
 class CustomPlayer:
     """Game-playing agent that chooses a move using your evaluation function
@@ -74,7 +94,7 @@ class CustomPlayer:
         timer expires.
     """
 
-    def __init__(self, search_depth=3, score_fn=custom_score,
+    def __init__(self, search_depth=3, score_fn=custom_score_3,
                  iterative=True, method='minimax', timeout=10.):
         self.search_depth = search_depth
         self.iterative = iterative
