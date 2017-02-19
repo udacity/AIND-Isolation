@@ -59,6 +59,12 @@ Valid choices: {!s}
 Your choice: {}
 """
 
+WRONG_HEURISTIC = """
+Your agent did not use the heuristic provided to the agent constructor
+(accessed with self.score()).  Make sure that you're not directly calling
+your custom_score() heuristic function in alpha-beta or minimax search.
+"""
+
 TIMER_MARGIN = 15  # time (in ms) to leave on the timer to avoid timeout
 
 
@@ -129,7 +135,7 @@ def makeEvalTable(table):
     return score
 
 
-def makeEvalStop(limit, timer, value=None):
+def makeEvalStop(limit, timer):
     """Use a closure to create a heuristic function that forces the search
     timer to expire when a fixed number of node expansions have been perfomred
     during the search. This ensures that the search algorithm should always be
@@ -140,6 +146,7 @@ def makeEvalStop(limit, timer, value=None):
     """
 
     def score(game, player):
+        timer.invoked = True
         if timer.time_left() < 0:
             raise TimeoutError("Timer expired during search. You must " +
                                "return an answer before the timer reaches 0.")
@@ -497,6 +504,7 @@ class Project1Test(unittest.TestCase):
             """
             def __init__(self, time_limit):
                 self.time_limit = time_limit
+                self.invoked = False
                 self.start_time = curr_time_millis()
 
             def time_left(self):
@@ -520,7 +528,7 @@ class Project1Test(unittest.TestCase):
             # the expected number of nodes
             time_limit = 1e4
             timer = DynamicTimer(time_limit)
-            eval_fn = makeEvalStop(exact_counts[idx][0], timer, time_limit)
+            eval_fn = makeEvalStop(exact_counts[idx][0], timer)
             agentUT, board = self.initAUT(-1, eval_fn, True, method,
                                           origins[idx], adversary_location,
                                           w, h)
@@ -530,6 +538,7 @@ class Project1Test(unittest.TestCase):
             diff_total = abs(board.counts[0] - exact_counts[idx][0])
             diff_unique = abs(board.counts[1] - exact_counts[idx][1])
 
+            self.assertTrue(timer.invoked, WRONG_HEURISTIC)
             self.assertTrue(diff_total <= 1 and diff_unique == 0, ID_FAIL)
 
             self.assertTrue(chosen_move in legal_moves, INVALID_MOVE.format(
