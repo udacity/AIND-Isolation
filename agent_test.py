@@ -194,14 +194,12 @@ class CounterBoard(isolation.Board):
         self.root = None
 
     def copy(self):
-        new_board = CounterBoard(self.__player_1__, self.__player_2__,
+        new_board = CounterBoard(self._player_1, self._player_2,
                                  width=self.width, height=self.height)
         new_board.move_count = self.move_count
-        new_board.__active_player__ = self.__active_player__
-        new_board.__inactive_player__ = self.__inactive_player__
-        new_board.__last_player_move__ = copy(self.__last_player_move__)
-        new_board.__player_symbols__ = copy(self.__player_symbols__)
-        new_board.__board_state__ = deepcopy(self.__board_state__)
+        new_board._active_player = self._active_player
+        new_board._inactive_player = self._inactive_player
+        new_board._board_state = copy(self._board_state)
         new_board.counter = self.counter
         new_board.visited = self.visited
         new_board.root = self.root
@@ -240,7 +238,6 @@ class Project1Test(unittest.TestCase):
     # @unittest.skip("Skip eval function test.")  # Uncomment this line to skip test
     def test_heuristic(self):
         """Test output interface of heuristic score function interface."""
-
         player1 = "Player1"
         player2 = "Player2"
         p1_location = (0, 0)
