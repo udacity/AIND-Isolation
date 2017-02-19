@@ -7,6 +7,7 @@ You MAY use and modify this class, however ALL function signatures must
 remain compatible with the defaults provided, and none of your changes will
 be available to project reviewers.
 """
+import random
 import timeit
 from copy import copy
 
@@ -258,6 +259,7 @@ class Board(object):
                       (1, -2), (1, 2), (2, -1), (2, 1)]
         valid_moves = [(r + dr, c + dc) for dr, dc in directions
                        if self.move_is_legal((r + dr, c + dc))]
+        random.shuffle(valid_moves)
         return valid_moves
 
     def print_board(self):
