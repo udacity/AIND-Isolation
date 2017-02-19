@@ -7,7 +7,6 @@ interface, but cannot be automatically assessed for correctness.
 STUDENTS SHOULD NOT NEED TO MODIFY THIS CODE.  IT WOULD BE BEST TO TREAT THIS
 FILE AS A BLACK BOX FOR TESTING.
 """
-import random
 import unittest
 import timeit
 import sys
@@ -26,7 +25,8 @@ from queue import Empty as QueueEmptyError
 from importlib import reload
 
 WRONG_MOVE = """
-The {} function failed because it returned a non-optimal move at search depth {}.
+The {} function failed because it returned a non-optimal move at search
+depth {}.
 Valid choices: {}
 Your selection: {}
 """
@@ -111,8 +111,10 @@ def timeout(time_limit):
                     raise err[0](err[1]).with_traceback(err[2])
                 return res
             except QueueEmptyError:
-                raise TimeoutError("Test aborted due to timeout. Test was " +
-                                   "expected to finish in less than {} second(s).".format(time_limit))
+                raise TimeoutError(
+                    ("Test aborted due to timeout. Test was " +
+                     "expected to finish in less than {} second(s).").format(
+                        time_limit))
 
         return testWrapper
 
@@ -237,7 +239,7 @@ class Project1Test(unittest.TestCase):
     @timeout(5)
     # @unittest.skip("Skip eval function test.")  # Uncomment this line to skip test
     def test_heuristic(self):
-        """ Test output interface of heuristic score function interface."""
+        """Test output interface of heuristic score function interface."""
 
         player1 = "Player1"
         player2 = "Player2"
@@ -253,7 +255,7 @@ class Project1Test(unittest.TestCase):
     timeout(5)
     # @unittest.skip("Skip simple minimax test.")  # Uncomment this line to skip test
     def test_minimax_interface(self):
-        """ Test CustomPlayer.minimax interface with simple input """
+        """Test CustomPlayer.minimax interface with simple input """
         h, w = 7, 7  # board size
         test_depth = 1
         starting_location = (5, 3)
@@ -284,7 +286,7 @@ class Project1Test(unittest.TestCase):
     timeout(5)
     # @unittest.skip("Skip alphabeta test.")  # Uncomment this line to skip test
     def test_alphabeta_interface(self):
-        """ Test CustomPlayer.alphabeta interface with simple input """
+        """Test CustomPlayer.alphabeta interface with simple input """
         h, w = 9, 9  # board size
         test_depth = 1
         starting_location = (2, 7)
@@ -315,7 +317,7 @@ class Project1Test(unittest.TestCase):
     @timeout(5)
     # @unittest.skip("Skip get_move test.")  # Uncomment this line to skip test
     def test_get_move_interface(self):
-        """ Test CustomPlayer.get_move interface with simple input """
+        """Test CustomPlayer.get_move interface with simple input """
         h, w = 9, 9  # board size
         test_depth = 1
         starting_location = (2, 7)
@@ -367,7 +369,7 @@ class Project1Test(unittest.TestCase):
     @timeout(5)
     # @unittest.skip("Skip minimax test.")  # Uncomment this line to skip test
     def test_minimax(self):
-        """ Test CustomPlayer.minimax
+        """Test CustomPlayer.minimax
 
         This test uses a scoring function that returns a constant value based
         on the location of the search agent on the board to force minimax to
@@ -432,7 +434,7 @@ class Project1Test(unittest.TestCase):
     @timeout(20)
     # @unittest.skip("Skip alpha-beta test.")  # Uncomment this line to skip test
     def test_alphabeta(self):
-        """ Test CustomPlayer.alphabeta
+        """Test CustomPlayer.alphabeta
 
         This test uses a scoring function that returns a constant value based
         on the branch being searched by alphabeta in the user agent, and forces
@@ -483,14 +485,14 @@ class Project1Test(unittest.TestCase):
             self.assertIn(move, first_branch, WRONG_MOVE.format(
                 method, test_depth, first_branch, move))
 
-
     @timeout(20)
     # @unittest.skip("Skip iterative deepening test.")  # Uncomment this line to skip test
     def test_get_move(self):
-        """ Test iterative deepening in CustomPlayer.get_move by placing an
-        agent on the game board and performing ID minimax search, which
-        should visit a specific number of unique nodes while expanding. By
-        forcing the search to timeout when a predetermined number of nodes
+        """Test iterative deepening in CustomPlayer.get_move
+
+        Placing an agent on the game board and performing ID minimax search,
+        which should visit a specific number of unique nodes while expanding.
+        By forcing the search to timeout when a predetermined number of nodes
         have been expanded, we can then verify that the expected number of
         unique nodes have been visited.
         """
