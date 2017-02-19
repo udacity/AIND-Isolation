@@ -32,6 +32,7 @@ from sample_players import open_move_score
 from sample_players import improved_score
 from game_agent import CustomPlayer
 from game_agent import custom_score
+from multiprocessing import Pool
 
 NUM_MATCHES = 5  # number of matches against each opponent
 TIME_LIMIT = 150  # number of milliseconds before timeout
@@ -120,9 +121,15 @@ def play_round(agents, num_matches):
         print("  Match {}: {!s:^11} vs {!s:^11}".format(idx + 1, *names), end=' ')
 
         # Each player takes a turn going first
+        pool = Pool()
         for p1, p2 in itertools.permutations((agent_1.player, agent_2.player)):
+            match_results = []
             for _ in range(num_matches):
-                score_1, score_2 = play_match(p1, p2)
+                match_result = pool.apply_async(play_match, [p1, p2])
+                match_results.append(match_result)
+
+            for match_result in match_results:
+                score_1, score_2 = match_result.get()
                 counts[p1] += score_1
                 counts[p2] += score_2
                 total += score_1 + score_2
