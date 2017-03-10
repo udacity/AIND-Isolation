@@ -47,12 +47,11 @@ def custom_score(game, player):
     if game.is_winner(player):
         return float("inf")
 
+    opp_player = game.get_opponent(player)
     own_moves = len(game.get_legal_moves(player))
-    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    opp_moves = len(game.get_legal_moves(opp_player))
     
     return float(own_moves - opp_moves)
-
-
 
 class CustomPlayer:
     """Game-playing agent that chooses a move using your evaluation function
@@ -147,23 +146,19 @@ class CustomPlayer:
         # move from the game board (i.e., an opening book), or returning
         # immediately if there are no legal moves
 
-        best_move = (-1, -1)
-        best_score = float("-inf")
+        if not legal_moves:
+            return (-1, -1)
 
-        open_book = [
-            (int(game.width /2 ), int(game.height / 2)),
-            (game.width, game.height),
-            (game.width, 0),
-            (0, game.height),
-            (0, 0)
-        ]
+
+        best_move = legal_moves[0]
+        best_score = float("-inf")
 
         try:
             # The search method call (alpha beta or minimax) should happen in
             # here in order to avoid timeout. The try/except block will
             # automatically catch the exception raised by the search method
             # when the timer gets close to expiring
-            
+                        
             if self.iterative:
                 depth = 1
 
@@ -176,20 +171,21 @@ class CustomPlayer:
                     if new_score > best_score:
                         best_move = new_move
                         best_score = new_score
+                        #print("beter score ", depth, best_score, best_move)
 
                     depth = depth + 1
             else:
-#                possible_move_scores = map(lambda move: (move, self.score(game.forecast_move(move), self)), legal_moves)
-#                open_move = reduce(lambda i, c: c if c[1] > i[1] else i, possible_move_scores)[0]
-                open_moves = set(open_book) & set(legal_moves)
-
-                return list(open_moves)[0] if len(open_moves) > 0 else legal_moves[0]
-
+                if self.time_left() > 0.001:
+                    if self.method == 'minimax':
+                        best_score, best_move = self.minimax(game, self.search_depth) 
+                    else:
+                        best_score, best_move = self.alphabeta(game, self.search_depth)
+          
         except Timeout:
             # Handle any actions required at timeout, if necessary
             pass
 
-        # Return the best move from the last completed search iteration
+        # Return the best move from the last completed search iteration       
         return best_move
 
     def minimax(self, game, depth, maximizing_player=True):
@@ -298,7 +294,7 @@ class CustomPlayer:
         possible_moves = game.get_legal_moves()
 
         # no possible moves. no reason to proceed
-        if len(possible_moves) == 0:
+        if not possible_moves:
             return float("inf") if game.is_winner(self) else float("-inf"), (-1, -1)
 
         best_move = (-1, -1)
@@ -313,7 +309,7 @@ class CustomPlayer:
                     best_move = move
 
                 if new_score >= beta:
-                    return best_score, (-1, -1)
+                    return best_score, move
 
                 alpha = max(alpha, new_score)
 
@@ -323,7 +319,7 @@ class CustomPlayer:
                     best_move = move
 
                 if new_score <= alpha:
-                    return best_score, (-1, -1)
+                    return best_score, move
 
                 beta = min(beta, new_score)
 
