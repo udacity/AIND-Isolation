@@ -129,8 +129,13 @@ class CustomPlayer:
             # here in order to avoid timeout. The try/except block will
             # automatically catch the exception raised by the search method
             # when the timer gets close to expiring
-            pass
-
+            #return self.minimax(game, 1)
+            if self.method == "minimax":
+                score, move = self.minimax(game, 1)
+                return move
+            else:
+                score, move = self.alphabeta(game, 1)
+                return move
         except Timeout:
             # Handle any actions required at timeout, if necessary
             pass
@@ -172,8 +177,46 @@ class CustomPlayer:
         if self.time_left() < self.TIMER_THRESHOLD:
             raise Timeout()
 
+
         # TODO: finish this function!
-        raise NotImplementedError
+        #print(game.print_board())
+        possible_moves = game.get_legal_moves()
+        v = -1. if maximizing_player else float("inf")
+        best_move = None
+        #print("*"*100)
+        #print("Depth: ", depth)
+        #print("Possible Moves: ", possible_moves)
+        #print("*"*100)
+
+        if possible_moves:
+            for move in possible_moves:
+                new_game = game.forecast_move(move)
+                #print("*"*80)
+                #print("Current Move: ", move)
+                #print("*"*80)
+                if maximizing_player:
+                    if not self.iterative and depth == 1:
+                        #print("active player: ", new_game.active_player)
+                        move_value = self.score(new_game, new_game.inactive_player)
+                        #print(move, move_value)
+                    else:
+                        move_value, temp = self.minimax(new_game, depth-1, False)
+                    if move_value > v:
+                        v = move_value
+                        best_move = move
+                else:
+                    if not self.iterative and depth == 1:
+                        move_value = self.score(new_game, new_game.active_player)
+                        #print(move, move_value)
+                    else:
+                        move_value, temp = self.minimax(new_game, depth-1, True)
+                    if move_value < v:
+                        v = move_value
+                        best_move = move
+            return v, best_move
+        else:
+            return game.utility(game.active_player), (-1, -1)
+
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf"), maximizing_player=True):
         """Implement minimax search with alpha-beta pruning as described in the
@@ -217,4 +260,40 @@ class CustomPlayer:
             raise Timeout()
 
         # TODO: finish this function!
-        raise NotImplementedError
+        # TODO: finish this function!
+        #print(game.print_board())
+        possible_moves = game.get_legal_moves()
+        v = 0. if maximizing_player else float("inf")
+        best_move = None
+        #print("*"*100)
+        #print("Depth: ", depth)
+        #print("Possible Moves: ", possible_moves)
+        #print("*"*100)
+        if possible_moves:
+            for move in possible_moves:
+                new_game = game.forecast_move(move)
+                #print("*"*80)
+                #print("Current Move: ", move)
+                #print("*"*80)
+                if maximizing_player:
+                    if not self.iterative and depth == 1:
+                        #print("active player: ", new_game.active_player)
+                        move_value = self.score(new_game, new_game.inactive_player)
+                        #print(move, move_value)
+                    else:
+                        move_value, temp = self.minimax(new_game, depth-1, False)
+                    if move_value > v:
+                        v = move_value
+                        best_move = move
+                else:
+                    if not self.iterative and depth == 1:
+                        move_value = self.score(new_game, new_game.active_player)
+                        #print(move, move_value)
+                    else:
+                        move_value, temp = self.minimax(new_game, depth-1, True)
+                    if move_value < v:
+                        v = move_value
+                        best_move = move
+            return v, best_move
+        else:
+            return game.utility(game.active_player), (-1, -1)
