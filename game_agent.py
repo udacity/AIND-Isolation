@@ -6,7 +6,7 @@ augment the test suite with your own test cases to further test your code.
 You must test your agent's strength against a set of agents with known
 relative strength using tournament.py and include the results in your report.
 """
-import random
+import random, sys
 
 
 class Timeout(Exception):
@@ -38,7 +38,15 @@ def custom_score(game, player):
     """
 
     # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    own_moves = len(game.get_legal_moves(player))
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    return float(own_moves - opp_moves)
 
 
 class CustomPlayer:
@@ -115,14 +123,17 @@ class CustomPlayer:
             Board coordinates corresponding to a legal move; may return
             (-1, -1) if there are no available legal moves.
         """
-
+        self.TIMER_THRESHOLD = 100.
         self.time_left = time_left
+
 
         # TODO: finish this function!
 
         # Perform any required initializations, including selecting an initial
         # move from the game board (i.e., an opening book), or returning
         # immediately if there are no legal moves
+        if not legal_moves:
+            return(-1, -1)
 
         try:
             # The search method call (alpha beta or minimax) should happen in
@@ -130,18 +141,27 @@ class CustomPlayer:
             # automatically catch the exception raised by the search method
             # when the timer gets close to expiring
             #return self.minimax(game, 1)
-            if self.method == "minimax":
-                score, move = self.minimax(game, 1)
-                return move
-            else:
-                score, move = self.alphabeta(game, 1)
-                return move
+            depth = 1
+            moves = []
+            while 1:
+                if self.time_left() < self.TIMER_THRESHOLD:
+                    if moves:
+                        return moves[-1]
+                    else:
+                        return legal_moves[-1]
+                if self.method == "minimax":
+                    score, move = self.minimax(game, depth)
+                    moves.append(move)
+                else:
+                    score, move = self.alphabeta(game, depth)
+                    moves.append(move)
+                depth += 1
         except Timeout:
             # Handle any actions required at timeout, if necessary
+            print("Timeout occured in get_move function")
             pass
 
-        # Return the best move from the last completed search iteration
-        raise NotImplementedError
+
 
     def minimax(self, game, depth, maximizing_player=True):
         """Implement the minimax search algorithm as described in the lectures.
@@ -177,7 +197,6 @@ class CustomPlayer:
         if self.time_left() < self.TIMER_THRESHOLD:
             raise Timeout()
 
-
         # TODO: finish this function!
         #print(game.print_board())
         possible_moves = game.get_legal_moves()
@@ -191,23 +210,23 @@ class CustomPlayer:
         if possible_moves:
             for move in possible_moves:
                 new_game = game.forecast_move(move)
-                #print("*"*80)
-                #print("Current Move: ", move)
-                #print("*"*80)
                 if maximizing_player:
-                    if not self.iterative and depth == 1:
-                        #print("active player: ", new_game.active_player)
+                    if depth == 1 or self.time_left() < self.TIMER_THRESHOLD:
+                        #if self.iterative:
+                        #    move_value = len(new_game.get_legal_moves())
+                        #else:
                         move_value = self.score(new_game, new_game.inactive_player)
-                        #print(move, move_value)
                     else:
                         move_value, temp = self.minimax(new_game, depth-1, False)
                     if move_value > v:
                         v = move_value
                         best_move = move
                 else:
-                    if not self.iterative and depth == 1:
+                    if depth == 1 or self.time_left() < self.TIMER_THRESHOLD:
+                        #if self.iterative:
+                        #    pass
+                        #else:
                         move_value = self.score(new_game, new_game.active_player)
-                        #print(move, move_value)
                     else:
                         move_value, temp = self.minimax(new_game, depth-1, True)
                     if move_value < v:
@@ -259,41 +278,34 @@ class CustomPlayer:
         if self.time_left() < self.TIMER_THRESHOLD:
             raise Timeout()
 
-        # TODO: finish this function!
-        # TODO: finish this function!
-        #print(game.print_board())
         possible_moves = game.get_legal_moves()
-        v = 0. if maximizing_player else float("inf")
+        v = -1. if maximizing_player else float("inf")
         best_move = None
-        #print("*"*100)
-        #print("Depth: ", depth)
-        #print("Possible Moves: ", possible_moves)
-        #print("*"*100)
         if possible_moves:
             for move in possible_moves:
                 new_game = game.forecast_move(move)
-                #print("*"*80)
-                #print("Current Move: ", move)
-                #print("*"*80)
                 if maximizing_player:
-                    if not self.iterative and depth == 1:
-                        #print("active player: ", new_game.active_player)
+                    if depth == 1 or self.time_left() < self.TIMER_THRESHOLD:
                         move_value = self.score(new_game, new_game.inactive_player)
-                        #print(move, move_value)
                     else:
-                        move_value, temp = self.minimax(new_game, depth-1, False)
+                        move_value, temp = self.alphabeta(new_game, depth-1, alpha, beta, False)
                     if move_value > v:
                         v = move_value
                         best_move = move
+                        if v >= beta:
+                            return v, move
+                        alpha = max([alpha, v])
                 else:
-                    if not self.iterative and depth == 1:
+                    if depth == 1 or self.time_left() < self.TIMER_THRESHOLD:
                         move_value = self.score(new_game, new_game.active_player)
-                        #print(move, move_value)
                     else:
-                        move_value, temp = self.minimax(new_game, depth-1, True)
+                        move_value, temp = self.alphabeta(new_game, depth-1, alpha, beta, True)
                     if move_value < v:
                         v = move_value
                         best_move = move
+                        if v <= alpha:
+                            return v, move
+                        beta = min([beta, v])
             return v, best_move
         else:
             return game.utility(game.active_player), (-1, -1)
