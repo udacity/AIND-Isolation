@@ -123,9 +123,8 @@ class CustomPlayer:
             Board coordinates corresponding to a legal move; may return
             (-1, -1) if there are no available legal moves.
         """
-        self.TIMER_THRESHOLD = 100.
         self.time_left = time_left
-
+        #self.TIMER_THRESHOLD = 100.
 
         # TODO: finish this function!
 
@@ -144,7 +143,7 @@ class CustomPlayer:
             depth = 1
             moves = []
             while 1:
-                if self.time_left() < self.TIMER_THRESHOLD:
+                if self.time_left() < 100.:
                     if moves:
                         return moves[-1]
                     else:
@@ -158,8 +157,13 @@ class CustomPlayer:
                 depth += 1
         except Timeout:
             # Handle any actions required at timeout, if necessary
-            print("Timeout occured in get_move function")
-            pass
+            # print("Timeout occured in get_move function")
+            #return legal_moves[-1]
+            score, move = self.minimax(game, 1)
+            if move:
+                return move
+            else:
+                return legal_moves[0]
 
 
 
@@ -197,24 +201,15 @@ class CustomPlayer:
         if self.time_left() < self.TIMER_THRESHOLD:
             raise Timeout()
 
-        # TODO: finish this function!
-        #print(game.print_board())
         possible_moves = game.get_legal_moves()
         v = -1. if maximizing_player else float("inf")
         best_move = None
-        #print("*"*100)
-        #print("Depth: ", depth)
-        #print("Possible Moves: ", possible_moves)
-        #print("*"*100)
 
         if possible_moves:
             for move in possible_moves:
                 new_game = game.forecast_move(move)
                 if maximizing_player:
-                    if depth == 1 or self.time_left() < self.TIMER_THRESHOLD:
-                        #if self.iterative:
-                        #    move_value = len(new_game.get_legal_moves())
-                        #else:
+                    if depth == 1 or self.time_left() < self.TIMER_THRESHOLD+10.:
                         move_value = self.score(new_game, new_game.inactive_player)
                     else:
                         move_value, temp = self.minimax(new_game, depth-1, False)
@@ -222,10 +217,7 @@ class CustomPlayer:
                         v = move_value
                         best_move = move
                 else:
-                    if depth == 1 or self.time_left() < self.TIMER_THRESHOLD:
-                        #if self.iterative:
-                        #    pass
-                        #else:
+                    if depth == 1 or self.time_left() < self.TIMER_THRESHOLD+10.:
                         move_value = self.score(new_game, new_game.active_player)
                     else:
                         move_value, temp = self.minimax(new_game, depth-1, True)
@@ -285,7 +277,7 @@ class CustomPlayer:
             for move in possible_moves:
                 new_game = game.forecast_move(move)
                 if maximizing_player:
-                    if depth == 1 or self.time_left() < self.TIMER_THRESHOLD:
+                    if depth == 1 or self.time_left() < self.TIMER_THRESHOLD+10.:
                         move_value = self.score(new_game, new_game.inactive_player)
                     else:
                         move_value, temp = self.alphabeta(new_game, depth-1, alpha, beta, False)
@@ -296,7 +288,7 @@ class CustomPlayer:
                             return v, move
                         alpha = max([alpha, v])
                 else:
-                    if depth == 1 or self.time_left() < self.TIMER_THRESHOLD:
+                    if depth == 1 or self.time_left() < self.TIMER_THRESHOLD+10.:
                         move_value = self.score(new_game, new_game.active_player)
                     else:
                         move_value, temp = self.alphabeta(new_game, depth-1, alpha, beta, True)
