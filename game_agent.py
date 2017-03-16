@@ -179,7 +179,7 @@ def knights_tour_improved(game, player):
         #else:
         #return diverge(game, player) + get_max_depth(game.get_player_location(player), blank_spaces)/1000000
         #return diverge(game, player)
-        return len(own_moves) + get_max_depth(game.get_player_location(player), blank_spaces)/1000000
+        return len(own_moves) + compute_depth_factor(game.get_player_location(player), blank_spaces)/1000000
 
 
 def average_board_score(game):
@@ -218,14 +218,14 @@ def blocking_move_score(game, player):
     return 0
 
 
-def get_max_depth(position, blank_spaces, depth=0):
+def compute_depth_factor(position, blank_spaces, depth=0):
     directions = [(-1, 2), (-1, -2), (1, 2), (1, -2), (-2, -1), (-2, 1), (2, -1), (2, 1)]
     x, y = position
     moves = [(x - p, y - q) for p, q in directions
              if x-p >= 0 and y-q >= 0 and (x-p, y-q) in blank_spaces]
     if moves:
         updated_blank_spaces = [blank_space for blank_space in blank_spaces if blank_space != position]
-        return sum([get_max_depth(move, updated_blank_spaces, depth+1) for move in moves])
+        return sum([compute_depth_factor(move, updated_blank_spaces, depth+1) for move in moves])
     else:
         return depth
 
