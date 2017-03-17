@@ -8,6 +8,7 @@ relative strength using tournament.py and include the results in your report.
 """
 import math
 
+
 class Timeout(Exception):
     """Subclass base exception for code clarity."""
     pass
@@ -363,12 +364,13 @@ class CustomPlayer:
         possible_moves = game.get_legal_moves()
         v = -1. if maximizing_player else float("inf")
         best_move = None
-
+        # iterative deepening in case cutoff is not reached
         if possible_moves:
             for move in possible_moves:
                 new_game = game.forecast_move(move)
                 move_value = None
                 if maximizing_player:
+                    # Returning heuristic score once on cutoff condition
                     if depth == 1 or self.time_left() < self.TIMER_THRESHOLD+30.:
                         move_value = self.score(new_game, new_game.inactive_player)
                     else:
@@ -377,6 +379,7 @@ class CustomPlayer:
                         v = move_value
                         best_move = move
                 else:
+                    # Returning heuristic score once on cutoff condition
                     if depth == 1 or self.time_left() < self.TIMER_THRESHOLD+30.:
                         move_value = self.score(new_game, new_game.active_player)
                     else:
@@ -427,13 +430,16 @@ class CustomPlayer:
         possible_moves = game.get_legal_moves()
         v = -1. if maximizing_player else float("inf")
         best_move = None
+        # explore the game tree only if possible moves exist otherwise return utility function
         if possible_moves:
             for move in possible_moves:
                 move_value = None
                 new_game = game.forecast_move(move)
                 if maximizing_player:
+                    # Returning heuristic score once on cutoff condition
                     if depth == 1 or self.time_left() < self.TIMER_THRESHOLD+30.:
                         move_value = self.score(new_game, new_game.inactive_player)
+                    # iterative deepening in case cutoff is not reached
                     else:
                         move_value, temp = self.alphabeta(new_game, depth-1, alpha, beta, False)
                     if move_value > v:
@@ -443,8 +449,11 @@ class CustomPlayer:
                             return v, move
                         alpha = max([alpha, v])
                 else:
+                    # Returning heuristic score once on cutoff condition
                     if depth == 1 or self.time_left() < self.TIMER_THRESHOLD+30.:
                         move_value = self.score(new_game, new_game.active_player)
+
+                    # iterative deepening in case cutoff is not reached
                     else:
                         move_value, temp = self.alphabeta(new_game, depth-1, alpha, beta, True)
                     if move_value < v:
