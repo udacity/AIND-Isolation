@@ -373,6 +373,7 @@ class CustomPlayer:
                     # Returning heuristic score once on cutoff condition
                     if depth == 1 or self.time_left() < self.TIMER_THRESHOLD+30.:
                         move_value = self.score(new_game, new_game.inactive_player)
+                    # iterative deepening in case cutoff is not reached
                     else:
                         move_value, temp = self.minimax(new_game, depth-1, False)
                     if move_value > v:
@@ -382,6 +383,7 @@ class CustomPlayer:
                     # Returning heuristic score once on cutoff condition
                     if depth == 1 or self.time_left() < self.TIMER_THRESHOLD+30.:
                         move_value = self.score(new_game, new_game.active_player)
+                    # iterative deepening in case cutoff is not reached
                     else:
                         move_value, temp = self.minimax(new_game, depth-1, True)
                     if move_value < v:
