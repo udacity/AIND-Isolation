@@ -6,8 +6,7 @@ augment the test suite with your own test cases to further test your code.
 You must test your agent's strength against a set of agents with known
 relative strength using tournament.py and include the results in your report.
 """
-import random, sys
-from utils import get_distance
+import math
 
 class Timeout(Exception):
     """Subclass base exception for code clarity."""
@@ -45,20 +44,20 @@ def custom_score(game, player):
 
     return diverge(game, player)
 
-# strategies
-# diverge
-# converge constrict the opposition
-# alternate diverge and converge based on number of spaces
-# reach a position with access to more blank spaces on the board
-
 
 def diverge(game, player):
     """
-      Checks for moves that have the least common moves with the opposing player
-      appropriate for opening move
-    :param game:
-    :param player:
-    :return: Float containing heuristic score
+    Checks for squares with max moves giving preferences those which have
+    least common moves with the opposing player.
+
+    :param game: `isolation.Board`
+        An instance of `isolation.Board` encoding the current state of the
+        game (e.g., player locations and blocked cells).
+    :param player: object
+        A player instance in the current game (i.e., an object corresponding to
+        one of the player objects `game.__player_1__` or `game.__player_2__`.)
+    :return: Float
+        containing move score determined by the heuristic
     """
 
     own_moves = game.get_legal_moves(player)
@@ -68,58 +67,41 @@ def diverge(game, player):
 
 def converge(game, player):
     """
-      Checks for moves that have the least common moves with the opposing player
-      appropriate for opening move
-    :param game:
-    :param player:
-    :return: Float containing heuristic score
+    Checks for squares with the most common moves with the opposing player
+
+    :param game: `isolation.Board`
+        An instance of `isolation.Board` encoding the current state of the
+        game (e.g., player locations and blocked cells).
+    :param player: object
+        A player instance in the current game (i.e., an object corresponding to
+        one of the player objects `game.__player_1__` or `game.__player_2__`.)
+    :return: Float
+        containing move score determined by the heuristic
     """
 
     own_moves = game.get_legal_moves(player)
     opp_moves = game.get_legal_moves(game.get_opponent(player))
-    return float(len(set(own_moves).intersection(set(opp_moves))))
+    return float(own_moves + len(set(own_moves).intersection(set(opp_moves))))
 
 
 def alternate(game, player):
+    """
+    This function switches from diverge and converge based on the game state
+    :param game: `isolation.Board`
+        An instance of `isolation.Board` encoding the current state of the
+        game (e.g., player locations and blocked cells).
+    :param player: object
+        A player instance in the current game (i.e., an object corresponding to
+        one of the player objects `game.__player_1__` or `game.__player_2__`.)
+    :return: Float
+        containing move score determined by the heuristic
+    """
+
     blank_spaces = len(game.get_blank_spaces())
-    total_spaces = game.height * game.width
-    if blank_spaces > 5:
+    if blank_spaces > 15:
         return diverge(game, player)
     else:
         return converge(game, player)
-
-
-def weighted_avg(game, player):
-    board_values = {}
-    blank_spaces = game.get_blank_spaces()
-    moves = [(-1, 2), (-1, -2), (1, 2), (1, -2), (-2, -1), (-2, 1), (2, -1), (2, 1)]
-    for blank_space in blank_spaces:
-        board_values[blank_space] = len([position for position in [(blank_space[0]-x, blank_space[1]-y)
-                                                                   for x,y in moves] if position in blank_spaces])
-    own_score = 0
-    opp_score = 0
-    max_distance = 72**0.5
-    blank_space_count = len(blank_spaces)
-    for m in game.get_legal_moves(player):
-        for position, value in board_values.items():
-            own_score += (max_distance - get_distance(m, position)) * value
-
-    for m in game.get_legal_moves(game.get_opponent(player)):
-        for position, value in board_values.items():
-            opp_score += (max_distance - get_distance(m, position)) * value
-
-    return (own_score-opp_score)/blank_space_count
-
-
-def future_moves(game, player):
-
-    blank_spaces = game.get_blank_spaces()
-    directions = [(-1, 2), (-1, -2), (1, 2), (1, -2), (-2, -1), (-2, 1), (2, -1), (2, 1)]
-    own_sum = sum([len([p for p in [(m[0]-x, m[1]-y) for x, y in directions] if p in blank_spaces])
-                   for m in game.get_legal_moves(player)])
-    opp_sum = sum([len([p for p in [(m[0]-x, m[1]-y) for x, y in directions] if p in blank_spaces])
-                   for m in game.get_legal_moves(game.get_opponent(player))])
-    return own_sum-opp_sum
 
 
 def knights_tour(game, player):
@@ -127,24 +109,47 @@ def knights_tour(game, player):
     Using Warnsdorf's rule for determining the Knight's tour path. This requires finding the path
     with the least possible moves emanating from it (restricting initial movement to the sides)
     and then using the space in the center to move across the board
-    :param game:
-    :param player:
-    :return:
+    :param game: `isolation.Board`
+        An instance of `isolation.Board` encoding the current state of the
+        game (e.g., player locations and blocked cells).
+    :param player: object
+        A player instance in the current game (i.e., an object corresponding to
+        one of the player objects `game.__player_1__` or `game.__player_2__`.)
+    :return: Float
+        containing move score determined by the heuristic
     """
-
+    # Number larger than 8 which is the max possible moves. Nodes with lesser moves are traversed first
+    MOVES_CONSTANT = 10
+    # This constant should be large enough to keep the distance factor < 1. We choose 10 since max distance is 8.48
+    DISTANCE_CONSTANT = 10
+    opponent = game.get_opponent(player)
     own_moves = game.get_legal_moves(player)
-    opp_moves = game.get_legal_moves(game.get_opponent(player))
+    opp_moves = game.get_legal_moves(opponent)
     move_count = len(set(own_moves).difference(opp_moves))
-    # each node should have aleast 2 moves so that the player is able to visit the node and exit it
+    own_loc = game.get_player_location(player)
+    opp_loc = game.get_player_location(opponent)
+    # Each node should have at least 2 moves so that the player is not blocked by the opponent
     if move_count > 1:
-        # chose an arbitrary number larger than max possible moves which is 8
-        # max distance is between two points (0,0) and (6,6) is 8.48.
-        # we choose a factor of 0.1 so as to keep the product below 1 in effect serving to break ties between
-        # same move count
-        return 10 - len(own_moves) + get_distance(game.get_player_location(player),
-                                                  game.get_player_location(game.get_opponent(player)))
+        # Distance between opponent location and current move to break the tie
+        return MOVES_CONSTANT - len(own_moves) + get_distance(own_loc, opp_loc)/DISTANCE_CONSTANT
     else:
         return 0
+
+
+def get_distance(point1, point2):
+    """
+    Distance formula to find the distance between two points x1, y1 and x2, y2
+    :param point1: (int, int)
+        tuple containing the player's cell position
+    :param point2: (int, int)
+        tuple containing the opponent's cell position
+    :return: Float
+        Distance between the two points
+    """
+
+    x1, y1 = point1
+    x2, y2 = point2
+    return ((x2-x1)**2 + (y2-y1)**2)**0.5
 
 
 def knights_tour_improved(game, player):
@@ -153,72 +158,55 @@ def knights_tour_improved(game, player):
     the least possible moves (greater than 1) and then based on the state of the game switches to occupying
     squares that have max possible moves
 
-    :param game: Board
-    :param player:
-    :return: Heuristic value based on board configuration and current player and opposition position
-    """
-    own_moves = game.get_legal_moves(player)
-    blank_spaces = game.get_blank_spaces()
-    blank_space_count = len(blank_spaces)
-    knight_tour_mode = True
-    # The value of heuristic function is inversely proportional to the depth
-    if knight_tour_mode and blank_space_count < 32:
-        #if average_board_score(game) < 1.7:
-        knight_tour_mode = False
-
-    # Identifying squares with max possible moves that are not in contention with the opposing player
-
-    # BLOCKING MOVE also need to consider the case where the current forecasted move is in the path of the opponent
-    # while the second possible move is not and also follows the previous move
-
-    if knight_tour_mode: #blank_space_count > 32:
-        return knights_tour(game, player)
-    else:
-        #if len(own_moves) > 1:
-        #return len(own_moves) + blocking_move_score(game, player)
-        #else:
-        #return diverge(game, player) + get_max_depth(game.get_player_location(player), blank_spaces)/1000000
-        #return diverge(game, player)
-        return len(own_moves) + compute_depth_factor(game.get_player_location(player), blank_spaces)/1000000
-
-
-def average_board_score(game):
-    """
-
-    :param game:
-    :return:
-    """
-    directions = [(-1, 2), (-1, -2), (1, 2), (1, -2), (-2, -1), (-2, 1), (2, -1), (2, 1)]
-    blank_spaces = game.get_blank_spaces()
-    result = sum([len([(x-p, y-q) for p, q in directions if x-p >= 0 and y-q >= 0 and (x-p, y-q) in blank_spaces])
-                  for x, y in blank_spaces])/len(blank_spaces)
-    return result
-
-
-def blocking_move_score(game, player):
-    """
-
-    :param game:
-    :param player:
-    :return:
+    :param game: `isolation.Board`
+        An instance of `isolation.Board` encoding the current state of the
+        game (e.g., player locations and blocked cells).
+    :param player: object
+        A player instance in the current game (i.e., an object corresponding to
+        one of the player objects `game.__player_1__` or `game.__player_2__`.)
+    :return: Float
+        containing move score determined by the heuristic
     """
     opponent = game.get_opponent(player)
-    directions = [(-1, 2), (-1, -2), (1, 2), (1, -2), (-2, -1), (-2, 1), (2, -1), (2, 1)]
-    own_position = game.get_player_location(player)
-    opp_position = game.get_player_location(opponent)
-    own_move_count = len(game.get_legal_moves(player))
-    opp_all_moves = [(opp_position[0]-x, opp_position[1]-y) for x, y in directions
-                 if opp_position[0]-x > 0 and opp_position[1]-y > 0]
+    own_moves = game.get_legal_moves(player)
     opp_moves = game.get_legal_moves(opponent)
-    if opp_moves and own_position in opp_all_moves:
-        max_opp_move_count = max([len(game.forecast_move(m).get_legal_moves(opponent))
-                                  for m in opp_moves])
-        if max_opp_move_count < own_move_count:
-            return 1
-    return 0
+    own_loc = game.get_player_location(player)
+    blank_spaces = game.get_blank_spaces()
+    blank_space_count = len(blank_spaces)
+    # Number larger than 8 which is the max possible moves. Nodes with lesser moves are traversed first
+    MOVES_CONSTANT = 10
+    # This constant should be large enough to keep the distance factor < 1. We choose 10 since max distance is 8.48
+    DISTANCE_CONSTANT = 10
+    knight_tour_mode = True
+
+    if knight_tour_mode and blank_space_count < 34:
+        knight_tour_mode = False
+
+    if knight_tour_mode:
+        opp_loc = game.get_player_location(opponent)
+        move_count = len(set(own_moves).difference(opp_moves))
+        # Each node should have at least 2 moves so that the player is not blocked by the opponent
+        if move_count > 1:
+            # Distance between opponent location and current move to break the tie
+            return MOVES_CONSTANT - len(own_moves) + get_distance(own_loc, opp_loc)/DISTANCE_CONSTANT
+        else:
+            return 0
+    else:
+        depth_factor = compute_depth_factor(own_loc, blank_spaces)/1000000.
+        #assert depth_factor < 1, "Depth factor {} is greater than 1".format(depth_factor)
+        return depth_factor
 
 
 def compute_depth_factor(position, blank_spaces, depth=0):
+    """
+    Traverses the partial game tree to obtain the move with the greatest depth and spread
+    :param position: (int, int)
+        Tuple containing location of the player
+    :param [(int,int), (int,int)..]
+        Array of tuples containing the current blank spaces in the board
+    :return: Int
+        containing move score
+    """
     directions = [(-1, 2), (-1, -2), (1, 2), (1, -2), (-2, -1), (-2, 1), (2, -1), (2, 1)]
     x, y = position
     moves = [(x - p, y - q) for p, q in directions
@@ -228,7 +216,6 @@ def compute_depth_factor(position, blank_spaces, depth=0):
         return sum([compute_depth_factor(move, updated_blank_spaces, depth+1) for move in moves])
     else:
         return depth
-
 
 
 class CustomPlayer:
@@ -313,10 +300,11 @@ class CustomPlayer:
             return move
 
         if not legal_moves:
-            return(-1, -1)
+            return -1, -1
         move = None
         try:
             depth = 1
+            # Iterative deepening starting from depth = 1 until the terminal node or cutoff is reached
             while 1:
                 if self.time_left() < self.TIMER_THRESHOLD+15.:
                     break
@@ -326,7 +314,6 @@ class CustomPlayer:
                         move = m
                     else:
                         break
-
                 else:
                     score, m = self.alphabeta(game, depth)
                     if m is not None:
@@ -335,8 +322,7 @@ class CustomPlayer:
                         break
                 depth += 1
         except Timeout:
-            # Handle any actions required at timeout, if necessary
-            #if move is None:
+            # In case the no move is returned before cutoff then we get the heuristic value from the root
             if move is None:
                 score, move = self.minimax(game, 1)
 
@@ -344,8 +330,6 @@ class CustomPlayer:
             return move
         else:
             return legal_moves[0]
-
-
 
     def minimax(self, game, depth, maximizing_player=True):
         """Implement the minimax search algorithm as described in the lectures.
@@ -372,11 +356,6 @@ class CustomPlayer:
         tuple(int, int)
             The best move for the current branch; (-1, -1) for no legal moves
 
-        Notes
-        -----
-            (1) You MUST use the `self.score()` method for board evaluation
-                to pass the project unit tests; you cannot call any other
-                evaluation function directly.
         """
         if self.time_left() < self.TIMER_THRESHOLD+30. and depth > 1:
             raise Timeout()
@@ -408,7 +387,6 @@ class CustomPlayer:
             return v, best_move
         else:
             return game.utility(game.active_player), (-1, -1)
-
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf"), maximizing_player=True):
         """Implement minimax search with alpha-beta pruning as described in the
@@ -442,11 +420,6 @@ class CustomPlayer:
         tuple(int, int)
             The best move for the current branch; (-1, -1) for no legal moves
 
-        Notes
-        -----
-            (1) You MUST use the `self.score()` method for board evaluation
-                to pass the project unit tests; you cannot call any other
-                evaluation function directly.
         """
         if self.time_left() < self.TIMER_THRESHOLD+30. and depth > 1:
             raise Timeout()
