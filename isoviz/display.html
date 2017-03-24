@@ -111,10 +111,10 @@ var init = function() {
 			if (idx % 2 == 0) {
 				row = table.insertRow();
 				cell = row.insertCell();
-				cell.innerHTML = "(" + game["moves"][idx] + ")";
+				cell.innerHTML = "(" + game["moves"][idx + 2] + ")";
 			} else {
 				cell = row.insertCell();
-				cell.innerHTML = "(" + game["moves"][idx] + ")";
+				cell.innerHTML = "(" + game["moves"][idx + 2] + ")";
 			}
 
 			idx++;
