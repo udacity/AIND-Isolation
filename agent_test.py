@@ -15,7 +15,6 @@ import isolation
 import game_agent
 
 from collections import Counter
-from copy import deepcopy
 from copy import copy
 from functools import wraps
 from queue import Queue
@@ -23,6 +22,8 @@ from threading import Thread
 from multiprocessing import TimeoutError
 from queue import Empty as QueueEmptyError
 from importlib import reload
+
+TIMEOUT = 60
 
 WRONG_MOVE = """
 The {} function failed because it returned a non-optimal move at search
@@ -234,7 +235,7 @@ class Project1Test(unittest.TestCase):
         board.apply_move(loc2)
         return agentUT, board
 
-    @timeout(5)
+    @timeout(TIMEOUT)
     # @unittest.skip("Skip eval function test.")  # Uncomment this line to skip test
     def test_heuristic(self):
         """Test output interface of heuristic score function interface."""
@@ -249,7 +250,7 @@ class Project1Test(unittest.TestCase):
         self.assertIsInstance(game_agent.custom_score(game, player1), float,
             "The heuristic function should return a floating point")
 
-    timeout(5)
+    @timeout(TIMEOUT)
     # @unittest.skip("Skip simple minimax test.")  # Uncomment this line to skip test
     def test_minimax_interface(self):
         """Test CustomPlayer.minimax interface with simple input """
@@ -280,7 +281,7 @@ class Project1Test(unittest.TestCase):
                              "point value approximating the score for the " +
                              "branch being searched."))
 
-    timeout(5)
+    @timeout(TIMEOUT)
     # @unittest.skip("Skip alphabeta test.")  # Uncomment this line to skip test
     def test_alphabeta_interface(self):
         """Test CustomPlayer.alphabeta interface with simple input """
@@ -311,7 +312,7 @@ class Project1Test(unittest.TestCase):
                              "point value approximating the score for the " +
                              "branch being searched."))
 
-    @timeout(5)
+    @timeout(TIMEOUT)
     # @unittest.skip("Skip get_move test.")  # Uncomment this line to skip test
     def test_get_move_interface(self):
         """Test CustomPlayer.get_move interface with simple input """
@@ -363,7 +364,7 @@ class Project1Test(unittest.TestCase):
                        "next move. The move must be one of the legal moves " +
                        "on the current game board."))
 
-    @timeout(5)
+    @timeout(TIMEOUT)
     # @unittest.skip("Skip minimax test.")  # Uncomment this line to skip test
     def test_minimax(self):
         """Test CustomPlayer.minimax
@@ -428,7 +429,7 @@ class Project1Test(unittest.TestCase):
             self.assertIn(move, expected_moves[idx // 2], WRONG_MOVE.format(
                 method, test_depth, expected_moves[idx // 2], move))
 
-    @timeout(20)
+    @timeout(TIMEOUT)
     # @unittest.skip("Skip alpha-beta test.")  # Uncomment this line to skip test
     def test_alphabeta(self):
         """Test CustomPlayer.alphabeta
@@ -482,7 +483,7 @@ class Project1Test(unittest.TestCase):
             self.assertIn(move, first_branch, WRONG_MOVE.format(
                 method, test_depth, first_branch, move))
 
-    @timeout(20)
+    @timeout(TIMEOUT)
     # @unittest.skip("Skip iterative deepening test.")  # Uncomment this line to skip test
     def test_get_move(self):
         """Test iterative deepening in CustomPlayer.get_move
