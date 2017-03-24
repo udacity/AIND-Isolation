@@ -101,8 +101,7 @@ class CustomPlayer:
             game (e.g., player locations and blocked cells).
 
         legal_moves : list<(int, int)>
-            A list containing legal moves. Moves are encoded as tuples of pairs
-            of ints defining the next (row, col) for the agent to occupy.
+            DEPRECATED -- This argument will be removed in the next release
 
         time_left : callable
             A function that returns the number of milliseconds left in the
