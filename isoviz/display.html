@@ -58,17 +58,18 @@ var init = function() {
 	var ind2alpha = function(xy) {
 		var alpha = "abcdefg";
 		var num = "1234567";
-		return alpha[xy[0]] + num[6 - xy[1]];
+		return alpha[xy[1]] + num[6 - xy[0]];
 	};
 
 	var runGame = function() {
 		
 		event.preventDefault();
-		document.getElementById("runGame").disabled = true;
 		
 		form = document.getElementById("game_form");
 		if ( !form.player1.value || !form.player2.value || !form.moves.value)
 			return;
+
+		document.getElementById("runGame").disabled = true;
 		game = {player1: form.player1.value,
 				player2: form.player2.value,
 				moves: JSON.parse(form.moves.value)};
