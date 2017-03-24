@@ -6,7 +6,7 @@ augment the test suite with your own test cases to further test your code.
 You must test your agent's strength against a set of agents with known
 relative strength using tournament.py and include the results in your report.
 """
-import random
+import math
 
 
 class Timeout(Exception):
@@ -37,8 +37,186 @@ def custom_score(game, player):
         The heuristic value of the current game state to the specified player.
     """
 
-    # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    return diverge(game, player)
+
+
+def diverge(game, player):
+    """
+    Checks for squares with max moves giving preferences those which have
+    least common moves with the opposing player.
+
+    :param game: `isolation.Board`
+        An instance of `isolation.Board` encoding the current state of the
+        game (e.g., player locations and blocked cells).
+    :param player: object
+        A player instance in the current game (i.e., an object corresponding to
+        one of the player objects `game.__player_1__` or `game.__player_2__`.)
+    :return: Float
+        containing move score determined by the heuristic
+    """
+
+    own_moves = game.get_legal_moves(player)
+    opp_moves = game.get_legal_moves(game.get_opponent(player))
+    return float(len(set(own_moves).difference(set(opp_moves))))
+
+
+def converge(game, player):
+    """
+    Checks for squares with the most common moves with the opposing player
+
+    :param game: `isolation.Board`
+        An instance of `isolation.Board` encoding the current state of the
+        game (e.g., player locations and blocked cells).
+    :param player: object
+        A player instance in the current game (i.e., an object corresponding to
+        one of the player objects `game.__player_1__` or `game.__player_2__`.)
+    :return: Float
+        containing move score determined by the heuristic
+    """
+
+    own_moves = game.get_legal_moves(player)
+    opp_moves = game.get_legal_moves(game.get_opponent(player))
+    return float(own_moves + len(set(own_moves).intersection(set(opp_moves))))
+
+
+def alternate(game, player):
+    """
+    This function switches from diverge and converge based on the game state
+    :param game: `isolation.Board`
+        An instance of `isolation.Board` encoding the current state of the
+        game (e.g., player locations and blocked cells).
+    :param player: object
+        A player instance in the current game (i.e., an object corresponding to
+        one of the player objects `game.__player_1__` or `game.__player_2__`.)
+    :return: Float
+        containing move score determined by the heuristic
+    """
+
+    blank_spaces = len(game.get_blank_spaces())
+    if blank_spaces > 15:
+        return diverge(game, player)
+    else:
+        return converge(game, player)
+
+
+def knights_tour(game, player):
+    """
+    Using Warnsdorf's rule for determining the Knight's tour path. This requires finding the path
+    with the least possible moves emanating from it (restricting initial movement to the sides)
+    and then using the space in the center to move across the board
+    :param game: `isolation.Board`
+        An instance of `isolation.Board` encoding the current state of the
+        game (e.g., player locations and blocked cells).
+    :param player: object
+        A player instance in the current game (i.e., an object corresponding to
+        one of the player objects `game.__player_1__` or `game.__player_2__`.)
+    :return: Float
+        containing move score determined by the heuristic
+    """
+    # Number larger than 8 which is the max possible moves. Nodes with lesser moves are traversed first
+    MOVES_CONSTANT = 10
+    # This constant should be large enough to keep the distance factor < 1. We choose 10 since max distance is 8.48
+    DISTANCE_CONSTANT = 10
+    opponent = game.get_opponent(player)
+    own_moves = game.get_legal_moves(player)
+    opp_moves = game.get_legal_moves(opponent)
+    move_count = len(set(own_moves).difference(opp_moves))
+    own_loc = game.get_player_location(player)
+    opp_loc = game.get_player_location(opponent)
+    # Each node should have at least 2 moves so that the player is not blocked by the opponent
+    if move_count > 1:
+        # Distance between opponent location and current move to break the tie
+        return MOVES_CONSTANT - len(own_moves) + get_distance(own_loc, opp_loc)/DISTANCE_CONSTANT
+    else:
+        return 0
+
+
+def get_distance(point1, point2):
+    """
+    Distance formula to find the distance between two points x1, y1 and x2, y2
+    :param point1: (int, int)
+        tuple containing the player's cell position
+    :param point2: (int, int)
+        tuple containing the opponent's cell position
+    :return: Float
+        Distance between the two points
+    """
+
+    x1, y1 = point1
+    x2, y2 = point2
+    return ((x2-x1)**2 + (y2-y1)**2)**0.5
+
+
+def knights_tour_improved(game, player):
+    """
+    Improved version of the Knight's tour where the player begins with occupying all squares that have
+    the least possible moves (greater than 1) and then based on the state of the game switches to occupying
+    squares that have max possible moves
+
+    :param game: `isolation.Board`
+        An instance of `isolation.Board` encoding the current state of the
+        game (e.g., player locations and blocked cells).
+    :param player: object
+        A player instance in the current game (i.e., an object corresponding to
+        one of the player objects `game.__player_1__` or `game.__player_2__`.)
+    :return: Float
+        containing move score determined by the heuristic
+    """
+    opponent = game.get_opponent(player)
+    own_moves = game.get_legal_moves(player)
+    opp_moves = game.get_legal_moves(opponent)
+    own_loc = game.get_player_location(player)
+    blank_spaces = game.get_blank_spaces()
+    blank_space_count = len(blank_spaces)
+    # Number larger than 8 which is the max possible moves. Nodes with lesser moves are traversed first
+    MOVES_CONSTANT = 10
+    # This constant should be large enough to keep the distance factor < 1. We choose 10 since max distance is 8.48
+    DISTANCE_CONSTANT = 10
+    knight_tour_mode = True
+
+    if knight_tour_mode and blank_space_count < 34:
+        knight_tour_mode = False
+
+    if knight_tour_mode:
+        opp_loc = game.get_player_location(opponent)
+        move_count = len(set(own_moves).difference(opp_moves))
+        # Each node should have at least 2 moves so that the player is not blocked by the opponent
+        if move_count > 1:
+            # Distance between opponent location and current move to break the tie
+            return MOVES_CONSTANT - len(own_moves) + get_distance(own_loc, opp_loc)/DISTANCE_CONSTANT
+        else:
+            return 0
+    else:
+        depth_factor = compute_depth_factor(own_loc, blank_spaces)/1000000.
+        #assert depth_factor < 1, "Depth factor {} is greater than 1".format(depth_factor)
+        return depth_factor
+
+
+def compute_depth_factor(position, blank_spaces, depth=0):
+    """
+    Traverses the partial game tree to obtain the move with the greatest depth and spread
+    :param position: (int, int)
+        Tuple containing location of the player
+    :param [(int,int), (int,int)..]
+        Array of tuples containing the current blank spaces in the board
+    :return: Int
+        containing move score
+    """
+    directions = [(-1, 2), (-1, -2), (1, 2), (1, -2), (-2, -1), (-2, 1), (2, -1), (2, 1)]
+    x, y = position
+    moves = [(x - p, y - q) for p, q in directions
+             if x-p >= 0 and y-q >= 0 and (x-p, y-q) in blank_spaces]
+    if moves:
+        updated_blank_spaces = [blank_space for blank_space in blank_spaces if blank_space != position]
+        return sum([compute_depth_factor(move, updated_blank_spaces, depth+1) for move in moves])
+    else:
+        return depth
 
 
 class CustomPlayer:
@@ -118,25 +296,41 @@ class CustomPlayer:
 
         self.time_left = time_left
 
-        # TODO: finish this function!
+        if self.time_left() == 99:
+            score, move = self.minimax(game, 1)
+            return move
 
-        # Perform any required initializations, including selecting an initial
-        # move from the game board (i.e., an opening book), or returning
-        # immediately if there are no legal moves
-
+        if not legal_moves:
+            return -1, -1
+        move = None
         try:
-            # The search method call (alpha beta or minimax) should happen in
-            # here in order to avoid timeout. The try/except block will
-            # automatically catch the exception raised by the search method
-            # when the timer gets close to expiring
-            pass
-
+            depth = 1
+            # Iterative deepening starting from depth = 1 until the terminal node or cutoff is reached
+            while 1:
+                if self.time_left() < self.TIMER_THRESHOLD+15.:
+                    break
+                if self.method == "minimax":
+                    score, m = self.minimax(game, depth)
+                    if m is not None:
+                        move = m
+                    else:
+                        break
+                else:
+                    score, m = self.alphabeta(game, depth)
+                    if m is not None:
+                        move = m
+                    else:
+                        break
+                depth += 1
         except Timeout:
-            # Handle any actions required at timeout, if necessary
-            pass
+            # In case the no move is returned before cutoff then we get the heuristic value from the root
+            if move is None:
+                score, move = self.minimax(game, 1)
 
-        # Return the best move from the last completed search iteration
-        raise NotImplementedError
+        if move in legal_moves:
+            return move
+        else:
+            return legal_moves[0]
 
     def minimax(self, game, depth, maximizing_player=True):
         """Implement the minimax search algorithm as described in the lectures.
@@ -163,17 +357,41 @@ class CustomPlayer:
         tuple(int, int)
             The best move for the current branch; (-1, -1) for no legal moves
 
-        Notes
-        -----
-            (1) You MUST use the `self.score()` method for board evaluation
-                to pass the project unit tests; you cannot call any other
-                evaluation function directly.
         """
-        if self.time_left() < self.TIMER_THRESHOLD:
+        if self.time_left() < self.TIMER_THRESHOLD+30. and depth > 1:
             raise Timeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        possible_moves = game.get_legal_moves()
+        v = -1. if maximizing_player else float("inf")
+        best_move = None
+        # iterative deepening in case cutoff is not reached
+        if possible_moves:
+            for move in possible_moves:
+                new_game = game.forecast_move(move)
+                move_value = None
+                if maximizing_player:
+                    # Returning heuristic score once on cutoff condition
+                    if depth == 1 or self.time_left() < self.TIMER_THRESHOLD+30.:
+                        move_value = self.score(new_game, new_game.inactive_player)
+                    # iterative deepening in case cutoff is not reached
+                    else:
+                        move_value, temp = self.minimax(new_game, depth-1, False)
+                    if move_value > v:
+                        v = move_value
+                        best_move = move
+                else:
+                    # Returning heuristic score once on cutoff condition
+                    if depth == 1 or self.time_left() < self.TIMER_THRESHOLD+30.:
+                        move_value = self.score(new_game, new_game.active_player)
+                    # iterative deepening in case cutoff is not reached
+                    else:
+                        move_value, temp = self.minimax(new_game, depth-1, True)
+                    if move_value < v:
+                        v = move_value
+                        best_move = move
+            return v, best_move
+        else:
+            return game.utility(game.active_player), (-1, -1)
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf"), maximizing_player=True):
         """Implement minimax search with alpha-beta pruning as described in the
@@ -207,14 +425,45 @@ class CustomPlayer:
         tuple(int, int)
             The best move for the current branch; (-1, -1) for no legal moves
 
-        Notes
-        -----
-            (1) You MUST use the `self.score()` method for board evaluation
-                to pass the project unit tests; you cannot call any other
-                evaluation function directly.
         """
-        if self.time_left() < self.TIMER_THRESHOLD:
+        if self.time_left() < self.TIMER_THRESHOLD+30. and depth > 1:
             raise Timeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        possible_moves = game.get_legal_moves()
+        v = -1. if maximizing_player else float("inf")
+        best_move = None
+        # explore the game tree only if possible moves exist otherwise return utility function
+        if possible_moves:
+            for move in possible_moves:
+                move_value = None
+                new_game = game.forecast_move(move)
+                if maximizing_player:
+                    # Returning heuristic score once on cutoff condition
+                    if depth == 1 or self.time_left() < self.TIMER_THRESHOLD+30.:
+                        move_value = self.score(new_game, new_game.inactive_player)
+                    # iterative deepening in case cutoff is not reached
+                    else:
+                        move_value, temp = self.alphabeta(new_game, depth-1, alpha, beta, False)
+                    if move_value > v:
+                        v = move_value
+                        best_move = move
+                        if v >= beta:
+                            return v, move
+                        alpha = max([alpha, v])
+                else:
+                    # Returning heuristic score once on cutoff condition
+                    if depth == 1 or self.time_left() < self.TIMER_THRESHOLD+30.:
+                        move_value = self.score(new_game, new_game.active_player)
+
+                    # iterative deepening in case cutoff is not reached
+                    else:
+                        move_value, temp = self.alphabeta(new_game, depth-1, alpha, beta, True)
+                    if move_value < v:
+                        v = move_value
+                        best_move = move
+                        if v <= alpha:
+                            return v, move
+                        beta = min([beta, v])
+            return v, best_move
+        else:
+            return game.utility(game.active_player), (-1, -1)

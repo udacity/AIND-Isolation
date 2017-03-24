@@ -171,6 +171,7 @@ def main():
         print("*************************")
 
         agents = random_agents + mm_agents + ab_agents + [agentUT]
+
         win_ratio = play_round(agents, NUM_MATCHES)
 
         print("\n\nResults:")
