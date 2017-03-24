@@ -330,15 +330,14 @@ class Board(object):
             if curr_move is None:
                 curr_move = Board.NOT_MOVED
 
-            if self.active_player == self._player_1:
-                move_history.append([curr_move])
-            else:
-                move_history[-1].append(curr_move)
-
             if move_end < 0:
                 return self._inactive_player, move_history, "timeout"
 
             if curr_move not in legal_player_moves:
+                if len(legal_player_moves) > 0:
+                    return self._inactive_player, move_history, "forfeit"
                 return self._inactive_player, move_history, "illegal move"
+
+            move_history.append(list(curr_move))
 
             self.apply_move(curr_move)

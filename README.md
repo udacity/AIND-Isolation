@@ -1,6 +1,8 @@
 
 # Build a Game-playing Agent
 
+![viz.gif](Example game of isolation)
+
 ## Synopsis
 
 In this project, students will develop an adversarial search agent to play the game "Isolation".  Students only need to modify code in the `game_agent.py`, however, code is included for example player and evaluation functions for you to review and test against in the other files.
@@ -103,3 +105,9 @@ The tournament opponents are listed below. (See also: sample heuristics and play
 ## Submitting
 
 Your project is ready for submission when it meets all requirements of the project rubric.  Your code is finished when it passes all unit tests, and you have successfully implemented a suitable heuristic function.
+
+
+## Using the Board Visualization
+
+The `isoviz` folder contains a modified version of chessboard.js that can animate games played on a 7x7 board.  In order to use the board, you must run a local webserver by running `python -m SimpleHTTPServer 8000` from your project directory (you can replace 8000 with another port number if that one is unavailable), then open your browser to `http://localhost:8000` and navigate to the `/isoviz/display.html` page.  Enter the move history of an isolation match (i.e., the array returned by the Board.play() method) into the text area and run the match.  Refresh the page to run a different game.
+
