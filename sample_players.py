@@ -134,7 +134,7 @@ class GreedyPlayer():
     equivalent to a minimax search agent with a search depth of one.
     """
 
-    def __init__(self, score_fn=open_move_score):
+    def __init__(self, score_fn=improved_score):
         self.score = score_fn
 
     def get_move(self, game, legal_moves, time_left):
