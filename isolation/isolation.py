@@ -49,8 +49,8 @@ class Board(object):
         # The last 3 entries of the board state includes initiative (0 for
         # player 1, 1 for player 2) player 2 last move, and player 1 last move
         self._board_state = [Board.BLANK] * (width * height + 3)
-        self._board_state[0] = Board.NOT_MOVED
         self._board_state[-1] = Board.NOT_MOVED
+        self._board_state[-2] = Board.NOT_MOVED
 
     def hash(self):
         return str(self._board_state).__hash__()
