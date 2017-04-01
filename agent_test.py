@@ -518,8 +518,8 @@ class Project1Test(unittest.TestCase):
         # performs an iterative deepening minimax search (minimax is easier to
         # test because it always visits all nodes in the game tree at every
         # level).
-        origins = [(2, 3), (6, 6), (7, 4), (4, 2), (0, 5), (10, 10)]
-        exact_counts = [(8, 8), (32, 10), (160, 39), (603, 35), (1861, 54), (3912, 62)]
+        origins = [(2, 3), (6, 6), (4, 2), (0, 5)]
+        exact_counts = [(8, 8), (32, 10), (603, 35), (1861, 54)]
 
         for idx in range(len(origins)):
 
