@@ -7,6 +7,7 @@ You must test your agent's strength against a set of agents with known
 relative strength using tournament.py and include the results in your report.
 """
 import random
+import numpy as np
 
 
 class Timeout(Exception):
@@ -14,7 +15,7 @@ class Timeout(Exception):
     pass
 
 
-def custom_score(game, player):
+def custom_score(game, player, agressiveness=3):
     """Calculate the heuristic value of a game state from the point of view
     of the given player.
 
@@ -36,9 +37,17 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
+    number_of_moves = game.get_legal_moves(player)
+    oponent_moves = game.get_legal_moves(game.get_opponent(player))
+    score = float(len(number_of_moves) - (agressiveness * len(oponent_moves)))
+    return score
 
-    # TODO: finish this function!
-    raise NotImplementedError
+
+def custom_score_generator(agressiveness=1):
+    def custom(game, player):
+        return custom_score(game, player, agressiveness)
+
+    return custom
 
 
 class CustomPlayer:
@@ -73,13 +82,32 @@ class CustomPlayer:
     """
 
     def __init__(self, search_depth=3, score_fn=custom_score,
-                 iterative=True, method='minimax', timeout=10.):
+                 iterative=True, method='minimax', timeout=10., agressiveness=None):
         self.search_depth = search_depth
         self.iterative = iterative
         self.score = score_fn
         self.method = method
         self.time_left = None
         self.TIMER_THRESHOLD = timeout
+        self.move_history = []
+        self.open_moves = []
+        self.agressiveness = agressiveness
+
+    def get_fill_square_sequence(self, game):
+        # TODO may be interesting open book
+        j = np.array([0, 2, 1, 0, 2, 0, 1, 2, 0, 1])
+        i = np.array([0, 1, -1, 1, 0, -1, 1, -1, -2, 0])
+        offsets = [np.array((i, j)), np.array((i, -j)), np.array((-i, j)),
+                   np.array((-j, i)), np.array((j, i)), np.array((-j, -i)), np.array((j, -i))]
+        location = np.resize(np.array(game.get_player_location()), (2, 1))
+        sequence = [location + offset for offset in offsets]
+        [[(seq[0, i], seq[1, i]) for i in range(np.shape(seq)[1])] for seq in sequence]
+
+    def has_moved_to(self, move):
+        '''
+        Add a move to the move history for the player
+        '''
+        self.move_history.append(list(move))
 
     def get_move(self, game, legal_moves, time_left):
         """Search for the best move from the available legal moves and return a
@@ -114,29 +142,75 @@ class CustomPlayer:
         (int, int)
             Board coordinates corresponding to a legal move; may return
             (-1, -1) if there are no available legal moves.
-        """
 
+
+        """
+        # TODOs
+        # -----
+        # Perform any required initializations, including selecting an initial CHANGED
+        # move from the game board (i.e., an opening book) TODO finish square sequence
+        # returning immediately if there are no legal moves CHANGED
         self.time_left = time_left
 
-        # TODO: finish this function!
+        if game.get_player_location(self) == game.NOT_MOVED:
+            # print('NOT MOVED !')
+            # this is the first move
+            center_position = (int(np.ceil(game.width / 2)), int(np.ceil(game.height / 2)))
+            if game.get_player_location(game.get_opponent(self)) == game.NOT_MOVED or game.move_is_legal(center_position):
+                # We are player one or center is free : pick center
+                # print('CENTER POSITION ', center_position)
+                return center_position
+            else:
+                return tuple(np.add(center_position, (1, 0)))
 
-        # Perform any required initializations, including selecting an initial
-        # move from the game board (i.e., an opening book), or returning
-        # immediately if there are no legal moves
+        # TODO implement the open book
+        '''
+        elif len(self.move_history) < 2 and not len(self.open_moves):
+            # first moves, try to fit a square sequence
+            # if possible
+            self.open_moves = self.get_fill_square_sequence()
 
+        if len(self.open_moves):
+            # we are currently attempting to perform open book sequence do not perform search until blocked
+            # check if next position on sequence is possible
+            # if yes perform and increment sequence index
+            next_open_position = self.open_moves.pop(0)
+            if game.move_is_legal(next_open_position):
+                return next_open_position
+            else:
+                # stop the open sequence
+                self.open_moves = []
+        '''
+        # Not at the beggining, not doing the open -- start performing the search
+        legal_moves = game.get_legal_moves(self)
+
+        if not legal_moves:
+            return (-1, -1)
+
+        score = float('-inf')
+        move = (-1, -1)
         try:
-            # The search method call (alpha beta or minimax) should happen in
-            # here in order to avoid timeout. The try/except block will
-            # automatically catch the exception raised by the search method
-            # when the timer gets close to expiring
-            pass
+            maximizing_player = True
+
+            if self.iterative:
+                depth = 1
+                while True:
+                    if self.method == 'minimax':
+                        score, move = self.minimax(game, depth, maximizing_player)
+                    elif self.method == 'alphabeta':
+                        score, move = self.alphabeta(game, depth, float("-inf"), float("inf"), maximizing_player)
+
+                    depth += 1
+            else:
+                if self.method == 'minimax':
+                    score, move = self.minimax(game, self.search_depth, maximizing_player)
+                elif self.method == 'alphabeta':
+                    score, move = self.alphabeta(game, self.search_depth, float("-inf"), float("inf"), maximizing_player)
 
         except Timeout:
-            # Handle any actions required at timeout, if necessary
-            pass
+            return move
 
-        # Return the best move from the last completed search iteration
-        raise NotImplementedError
+        return move
 
     def minimax(self, game, depth, maximizing_player=True):
         """Implement the minimax search algorithm as described in the lectures.
@@ -168,12 +242,53 @@ class CustomPlayer:
             (1) You MUST use the `self.score()` method for board evaluation
                 to pass the project unit tests; you cannot call any other
                 evaluation function directly.
+
+
+                function MINIMAX-DECISION(state) returns an action
+                 return arg max a ∈ ACTIONS(s) MIN-VALUE(RESULT(state, a))
+
+                function MAX-VALUE(state) returns a utility value
+                 if TERMINAL-TEST(state) the return UTILITY(state)
+                 v ← −∞
+                 for each a in ACTIONS(state) do
+                   v ← MAX(v, MIN-VALUE(RESULT(state, a)))
+                 return v
+
+                function MIN-VALUE(state) returns a utility value
+                 if TERMINAL-TEST(state) the return UTILITY(state)
+                 v ← ∞
+                 for each a in ACTIONS(state) do
+                   v ← MIN(v, MAX-VALUE(RESULT(state, a)))
+                 return v
         """
         if self.time_left() < self.TIMER_THRESHOLD:
             raise Timeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        player = game.active_player
+        # print("At depth ", depth, " ---- ", player, " -- last move p1", self.move_history[-1])
+        legal_moves = game.get_legal_moves(player)
+
+        # if no legal moves return utility
+        if not legal_moves:
+            if player == self:
+                utility = float("-inf")
+            else:
+                utility = float("+inf")
+            return utility, (-1, -1)
+
+        # check if we are at a leaf (depth == 0)
+        if depth == 0:
+            # we are at a leaf return the board score
+            return self.score(game, self), (-1, -1)
+        else:
+            # not at a leaf - use recursion alternating min and max to search the tree
+            if maximizing_player:
+                results = [(self.minimax(game.forecast_move(m), depth - 1, not maximizing_player)[0], m) for m in legal_moves]
+                # print('RESULTS : ', results)
+                # print('MAX : ', max(results))
+                return max(results)
+            else:
+                return min([(self.minimax(game.forecast_move(m), depth - 1, not maximizing_player)[0], m) for m in legal_moves])
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf"), maximizing_player=True):
         """Implement minimax search with alpha-beta pruning as described in the
@@ -212,9 +327,62 @@ class CustomPlayer:
             (1) You MUST use the `self.score()` method for board evaluation
                 to pass the project unit tests; you cannot call any other
                 evaluation function directly.
+
         """
         if self.time_left() < self.TIMER_THRESHOLD:
             raise Timeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        player = game.active_player
+        # print("At depth ", depth, " ---- ", player, " -- last move p1", self.move_history[-1])
+        legal_moves = game.get_legal_moves(player)
+
+        if not legal_moves:
+            if player == self:
+                utility = float("-inf")
+            else:
+                utility = float("+inf")
+            return utility, (-1, -1)
+
+        if depth == 0:
+            # we are at a leaf - return board score
+            return self.score(game, self), (-1, -1)
+        else:
+            if maximizing_player:
+                best_score = float('-inf')
+                best_move = (-1, -1)
+                # print(' beta ', beta)
+
+                # go through all the moves but this time using a for loop in order to prune
+                for m in legal_moves:
+                    score, move = self.alphabeta(game.forecast_move(m), depth - 1, alpha, beta, not maximizing_player)
+
+                    # check if the score is above beta for pruning
+                    if score >= beta:
+                        # score is above beta, this branch will not be selected 2 levels above
+                        # can be prunned
+                        # print('Score : ', score)
+                        # print('move : ', move)
+                        return score, m
+                    else:
+                        alpha = max(alpha, score)
+                        if score > best_score:
+                            best_score = score
+                            best_move = m
+                return best_score, best_move
+
+            else:
+                best_score = float('+inf')
+                best_move = (-1, -1)
+                # print(' alpha ', alpha)
+                for m in legal_moves:
+                    score, move = self.alphabeta(game.forecast_move(m), depth - 1, alpha, beta, not maximizing_player)
+                    # print('Score : ', score, ' alpha ', alpha)
+                    if score <= alpha:
+                        # print('PRUNED!')
+                        return score, m
+                    else:
+                        beta = min(beta, score)
+                        if score < best_score:
+                            best_score = score
+                            best_move = m
+                return best_score, best_move
