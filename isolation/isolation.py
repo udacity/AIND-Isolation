@@ -47,10 +47,10 @@ class Board(object):
         self._inactive_player = player_2
 
         # The last 3 entries of the board state includes initiative (0 for
-        # player 1, 1 for player 2) player 2 last move, and player 1 last move
+        # player 1, 1 for player 2) player 2 last move, and player 1 last move NOTE ++++
         self._board_state = [Board.BLANK] * (width * height + 3)
-        self._board_state[-1] = Board.NOT_MOVED
-        self._board_state[-2] = Board.NOT_MOVED
+        self._board_state[-1] = Board.NOT_MOVED  # player one last move
+        self._board_state[-2] = Board.NOT_MOVED  # player two last move
 
     def hash(self):
         return str(self._board_state).__hash__()
@@ -132,6 +132,7 @@ class Board(object):
         bool
             Returns True if the move is legal, False otherwise
         """
+        # NOTE _board_state is indexed from top to bottom one column at a time. index starts at 0 and end (self.height*self.width)-1
         idx = move[0] + move[1] * self.height
         return (0 <= move[0] < self.height and 0 <= move[1] < self.width and
                 self._board_state[idx] == Board.BLANK)
@@ -167,7 +168,7 @@ class Board(object):
         else:
             raise RuntimeError(
                 "Invalid player in get_player_location: {}".format(player))
-        w = idx // self.height
+        w = idx // self.height  # NOTE Truncation integer part
         h = idx % self.height
         return (h, w)
 
@@ -201,15 +202,21 @@ class Board(object):
         """
         idx = move[0] + move[1] * self.height
         last_move_idx = int(self.active_player == self._player_2) + 1
+
+        try:
+            self.active_player.has_moved_to(move)
+        except AttributeError:
+            pass
+
         self._board_state[-last_move_idx] = idx
         self._board_state[idx] = 1
         self._board_state[-3] ^= 1
-        self._active_player, self._inactive_player = self._inactive_player, self._active_player
+        self._active_player, self._inactive_player = self._inactive_player, self._active_player  # At each move changes the player ++
         self.move_count += 1
 
     def is_winner(self, player):
         """ Test whether the specified player has won the game. """
-        return player == self._inactive_player and not self.get_legal_moves(self._active_player)
+        return player == self._inactive_player and not self.get_legal_moves(self._active_player)  # its always the active player that moves
 
     def is_loser(self, player):
         """ Test whether the specified player has lost the game. """
@@ -314,7 +321,7 @@ class Board(object):
         """
         move_history = []
 
-        time_millis = lambda: 1000 * timeit.default_timer()
+        def time_millis(): return 1000 * timeit.default_timer()
 
         while True:
 
@@ -322,7 +329,8 @@ class Board(object):
             game_copy = self.copy()
 
             move_start = time_millis()
-            time_left = lambda : time_limit - (time_millis() - move_start)
+
+            def time_left(): return time_limit - (time_millis() - move_start)
             curr_move = self._active_player.get_move(
                 game_copy, legal_player_moves, time_left)
             move_end = time_left()

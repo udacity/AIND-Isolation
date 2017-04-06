@@ -1,0 +1,141 @@
+$ python tournament_custom_agressiveness.py
+
+This script evaluates the performance of the custom heuristic function by
+comparing the strength of an agent using iterative deepening (ID) search with
+alpha-beta pruning against the strength rating of agents using other heuristic
+functions.  The `ID_Improved` agent provides a baseline by measuring the
+performance of a basic agent using Iterative Deepening and the "improved"
+heuristic (from lecture) on your hardware.  The `Student` agent then measures
+the performance of Iterative Deepening and the custom heuristic against the
+same opponents.
+
+
+*************************
+Evaluating: Student iterative ag2
+*************************
+
+Playing Matches:
+----------
+tournament_custom_agressiveness.py:82: UserWarning: One or more agents lost a match this round due to timeout. The get_move() function must return before time_left() reaches 0 ms. You will need
+ to leave some time for the function to return, and may need to increase this margin to avoid timeouts during  tournament play.
+  warnings.warn(TIMEOUT_WARNING)
+  Match 1: Student iterative ag2 vs ID_Improved         Result: 17 to 23
+
+
+Results:
+----------
+Student iterative ag2     42.50%
+
+*************************
+Evaluating: Student iterative ag3
+*************************
+
+Playing Matches:
+----------
+  Match 1: Student iterative ag3 vs ID_Improved         Result: 22 to 18
+
+
+Results:
+----------
+Student iterative ag3     55.00%
+
+*************************
+Evaluating: Student iterative ag4
+*************************
+
+Playing Matches:
+----------
+  Match 1: Student iterative ag4 vs ID_Improved         Result: 18 to 22
+
+
+Results:
+----------
+Student iterative ag4     45.00%
+
+*************************
+Evaluating: Student iterative ag5
+*************************
+
+Playing Matches:
+----------
+  Match 1: Student iterative ag5 vs ID_Improved         Result: 23 to 17
+
+
+Results:
+----------
+Student iterative ag5     57.50%
+
+*************************
+Evaluating: Student iterative ag6
+*************************
+
+Playing Matches:
+----------
+  Match 1: Student iterative ag6 vs ID_Improved         Result: 20 to 20
+
+
+Results:
+----------
+Student iterative ag6     50.00%
+
+
+[[1, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [0, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [1, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [0, 'Student iterativ
+e ag2', 'ID_Improved', 3, 3, True], [0, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [0, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [1, 'Student iterative ag2', 'ID_Improved',
+ 3, 3, True], [0, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [0, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [0, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [0, 'Stu
+dent iterative ag2', 'ID_Improved', 3, 3, True], [0, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [1, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [0, 'Student iterative ag2', '
+ID_Improved', 3, 3, True], [1, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [0, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [1, 'Student iterative ag2', 'ID_Improved', 3, 3, Tr
+ue], [0, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [1, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [0, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [1, 'Student iter
+ative ag2', 'ID_Improved', 3, 3, True], [0, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [1, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [0, 'Student iterative ag2', 'ID_Improv
+ed', 3, 3, True], [1, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [0, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [1, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [0,
+'Student iterative ag2', 'ID_Improved', 3, 3, True], [1, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [0, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [0, 'Student iterative ag2
+', 'ID_Improved', 3, 3, True], [0, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [1, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [1, 'Student iterative ag2', 'ID_Improved', 3, 3
+, True], [1, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [0, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [1, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [0, 'Student
+iterative ag2', 'ID_Improved', 3, 3, True], [1, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [0, 'Student iterative ag2', 'ID_Improved', 3, 3, True], [1, 'Student iterative ag3', 'ID_Im
+proved', 4, 3, True], [0, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [1, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [0, 'Student iterative ag3', 'ID_Improved', 4, 3, True],
+[1, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [1, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [0, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [0, 'Student iterative
+ ag3', 'ID_Improved', 4, 3, True], [1, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [0, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [1, 'Student iterative ag3', 'ID_Improved',
+4, 3, True], [0, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [1, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [0, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [0, 'Stud
+ent iterative ag3', 'ID_Improved', 4, 3, True], [0, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [1, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [0, 'Student iterative ag3', 'I
+D_Improved', 4, 3, True], [1, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [1, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [1, 'Student iterative ag3', 'ID_Improved', 4, 3, Tru
+e], [1, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [1, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [0, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [1, 'Student itera
+tive ag3', 'ID_Improved', 4, 3, True], [0, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [0, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [0, 'Student iterative ag3', 'ID_Improve
+d', 4, 3, True], [1, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [0, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [1, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [0, '
+Student iterative ag3', 'ID_Improved', 4, 3, True], [1, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [1, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [1, 'Student iterative ag3'
+, 'ID_Improved', 4, 3, True], [0, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [1, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [0, 'Student iterative ag3', 'ID_Improved', 4, 3,
+ True], [1, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [1, 'Student iterative ag3', 'ID_Improved', 4, 3, True], [1, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [1, 'Student i
+terative ag4', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag4', 'ID_Imp
+roved', 5, 3, True], [0, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [
+1, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [0, 'Student iterative
+ag4', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag4', 'ID_Improved', 5
+, 3, True], [0, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [1, 'Stude
+nt iterative ag4', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag4', 'ID
+_Improved', 5, 3, True], [1, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag4', 'ID_Improved', 5, 3, True
+], [0, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [1, 'Student iterat
+ive ag4', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag4', 'ID_Improved
+', 5, 3, True], [0, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [0, 'S
+tudent iterative ag4', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag4',
+ 'ID_Improved', 5, 3, True], [0, 'Student iterative ag4', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag5', 'ID_Improved', 5, 3,
+True], [1, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [0, 'Student it
+erative ag5', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag5', 'ID_Impr
+oved', 5, 3, True], [0, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [1
+, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [1, 'Student iterative a
+g5', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag5', 'ID_Improved', 5,
+ 3, True], [0, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [1, 'Studen
+t iterative ag5', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag5', 'ID_
+Improved', 5, 3, True], [1, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag5', 'ID_Improved', 5, 3, True]
+, [0, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [1, 'Student iterati
+ve ag5', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag5', 'ID_Improved'
+, 5, 3, True], [1, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [0, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag5', 'ID_Improved', 5, 3, True], [1, 'St
+udent iterative ag5', 'ID_Improved', 5, 3, True], [1, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [0, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [1, 'Student iterative ag6',
+'ID_Improved', 6, 3, True], [1, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [1, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [0, 'Student iterative ag6', 'ID_Improved', 6, 3, T
+rue], [1, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [0, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [1, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [0, 'Student ite
+rative ag6', 'ID_Improved', 6, 3, True], [1, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [0, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [1, 'Student iterative ag6', 'ID_Impro
+ved', 6, 3, True], [0, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [1, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [0, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [1,
+ 'Student iterative ag6', 'ID_Improved', 6, 3, True], [0, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [1, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [0, 'Student iterative ag
+6', 'ID_Improved', 6, 3, True], [1, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [0, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [1, 'Student iterative ag6', 'ID_Improved', 6,
+3, True], [0, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [0, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [0, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [1, 'Student
+ iterative ag6', 'ID_Improved', 6, 3, True], [0, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [1, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [0, 'Student iterative ag6', 'ID_I
+mproved', 6, 3, True], [1, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [0, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [1, 'Student iterative ag6', 'ID_Improved', 6, 3, True],
+ [0, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [1, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [0, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [1, 'Student iterativ
+e ag6', 'ID_Improved', 6, 3, True], [0, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [1, 'Student iterative ag6', 'ID_Improved', 6, 3, True], [0, 'Student iterative ag6', 'ID_Improved',
+ 6, 3, True]]

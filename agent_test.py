@@ -248,7 +248,7 @@ class Project1Test(unittest.TestCase):
         game.apply_move(p2_location)
 
         self.assertIsInstance(game_agent.custom_score(game, player1), float,
-            "The heuristic function should return a floating point")
+                              "The heuristic function should return a floating point")
 
     @timeout(TIMEOUT)
     # @unittest.skip("Skip simple minimax test.")  # Uncomment this line to skip test
@@ -260,7 +260,8 @@ class Project1Test(unittest.TestCase):
         adversary_location = (0, 0)  # top left corner
         iterative_search = False
         search_method = "minimax"
-        heuristic = lambda g, p: 0.  # return 0 everywhere
+
+        def heuristic(g, p): return 0.  # return 0 everywhere
 
         # create a player agent & a game board
         agentUT = game_agent.CustomPlayer(
@@ -274,10 +275,10 @@ class Project1Test(unittest.TestCase):
 
         for move in board.get_legal_moves():
             next_state = board.forecast_move(move)
-            v, _ = agentUT.minimax(next_state, test_depth)
+            v, d = agentUT.minimax(next_state, test_depth)
 
             self.assertTrue(type(v) == float,
-                            ("Minimax function should return a floating " +
+                            ("Minimax function should return a floating sssSDD" + str(v) + " --- " + str(d) +
                              "point value approximating the score for the " +
                              "branch being searched."))
 
@@ -291,7 +292,8 @@ class Project1Test(unittest.TestCase):
         adversary_location = (0, 0)  # top left corner
         iterative_search = False
         search_method = "alphabeta"
-        heuristic = lambda g, p: 0.  # return 0 everywhere
+
+        def heuristic(g, p): return 0.  # return 0 everywhere
 
         # create a player agent & a game board
         agentUT = game_agent.CustomPlayer(
@@ -308,7 +310,7 @@ class Project1Test(unittest.TestCase):
             v, _ = agentUT.alphabeta(next_state, test_depth)
 
             self.assertTrue(type(v) == float,
-                            ("Alpha Beta function should return a floating " +
+                            ("Alpha Beta function should return a floating sdsds" +
                              "point value approximating the score for the " +
                              "branch being searched."))
 
@@ -322,7 +324,8 @@ class Project1Test(unittest.TestCase):
         adversary_location = (0, 0)  # top left corner
         iterative_search = False
         search_method = "minimax"
-        heuristic = lambda g, p: 0.  # return 0 everywhere
+
+        def heuristic(g, p): return 0.  # return 0 everywhere
 
         # create a player agent & a game board
         agentUT = game_agent.CustomPlayer(
@@ -461,15 +464,18 @@ class Project1Test(unittest.TestCase):
             test_depth = idx + 1  # pruning guarantee requires min depth of 3
             first_branch = []
             heuristic = makeBranchEval(first_branch)
+
             agentUT, board = self.initAUT(test_depth, heuristic,
                                           iterative_search, method,
                                           loc1=starting_location,
                                           loc2=adversary_location,
                                           w=w, h=h)
-
+            print(idx, 'ddd', board.root, 'ffff', first_branch)
             # disable search timeout by returning a constant value
             agentUT.time_left = lambda: 1e3
+            print(first_branch, 'frefre')
             _, move = agentUT.alphabeta(board, test_depth)
+            print(move, 'ffdddff', first_branch)
 
             num_explored_valid = board.counts[0] == counts[idx][0]
             num_unique_valid = board.counts[1] == counts[idx][1]
@@ -480,6 +486,7 @@ class Project1Test(unittest.TestCase):
             self.assertTrue(num_unique_valid, UNEXPECTED_VISIT.format(
                 method, test_depth, counts[idx][1], board.counts[1]))
 
+            print(move, 'ffff', first_branch)
             self.assertIn(move, first_branch, WRONG_MOVE.format(
                 method, test_depth, first_branch, move))
 
@@ -502,6 +509,7 @@ class Project1Test(unittest.TestCase):
             when an event occurs, regardless of the clock time required until
             the event happens.
             """
+
             def __init__(self, time_limit):
                 self.time_limit = time_limit
                 self.invoked = False
