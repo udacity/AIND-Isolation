@@ -36,10 +36,85 @@ def custom_score(game, player):
         The heuristic value of the current game state to the specified player.
     """
 
-    player_moves = game.get_legal_moves(player)
-    opponent_moves = game.get_legal_moves(game.get_opponent(player))
+    if game.is_winner(player):
+        return float("inf")
+    if game.is_loser(player):
+        return float("-inf")
 
-    return float(len(player_moves) - len(opponent_moves))
+    if game.move_count > 12:
+        player_reachable = get_reachable_spaces(game, player)
+        opponent_reachable = get_reachable_spaces(game, game.get_opponent(player))
+        return float(player_reachable - opponent_reachable)
+
+    else:
+        opponent = game.get_opponent(player)
+        player_moves = game.get_legal_moves(player)
+        opponent_moves = game.get_legal_moves(opponent)
+
+        player_moves_sum = len(player_moves)
+        opponent_moves_sum = len(opponent_moves)
+
+        if player == game.active_player:
+            for (x, y) in opponent_moves:
+                if game.move_is_legal((x, y)):
+                    opponent_moves_sum -= 1
+        else:
+            for (x, y) in player_moves:
+                if game.move_is_legal((x, y)):
+                    player_moves_sum -= 1
+
+        return float(player_moves_sum - opponent_moves_sum)
+
+
+
+def get_reachable_spaces(game, player):
+    """Calculate the number of reachable spaces for the provided player.
+
+    Parameters
+    ----------
+    game : `isolation.Board`
+        An instance of `isolation.Board` encoding the current state of the
+        game (e.g., player locations and blocked cells).
+
+    player : object
+        A player instance in the current game (i.e., an object corresponding to
+        one of the player objects `game.__player_1__` or `game.__player_2__`.)
+
+    Returns
+    -------
+    int
+        The number of reachable spaces
+    """
+    movements = [(1, 2), (1, -2), (-1, 2), (-1, -2)]
+    avail_spaces = game.get_blank_spaces()
+    legal_moves = game.get_legal_moves(player)
+    opponent_moves = []
+
+    reachable_count = len(legal_moves)
+    moves_to_search = legal_moves[:]
+    searched_moves = legal_moves[:]
+    searched_moves.append(game.get_player_location(player))
+
+    if player != game.active_player:
+        opponent_moves = game.get_legal_moves(game.active_player)
+
+    def checkmove(new_move, reachable_count):
+        if avail_spaces.count(new_move) and not searched_moves.count(new_move):
+            reachable_count += 1
+            searched_moves.append(new_move)
+            moves_to_search.append(new_move)
+        return reachable_count
+
+    while len(moves_to_search):
+        move = moves_to_search.pop(0)
+        (x, y) = move
+        for (i, j) in movements:
+            if not opponent_moves.count((x, y)):
+                reachable_count = checkmove((x + i, y + j), reachable_count)
+                reachable_count = checkmove((x + j, y + i), reachable_count)
+
+    return reachable_count
+
 
 class CustomPlayer:
     """Game-playing agent that chooses a move using your evaluation function
