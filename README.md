@@ -102,12 +102,12 @@ The performance of time-limited iterative deepening search is hardware dependent
 The tournament opponents are listed below. (See also: sample heuristics and players defined in sample_players.py)
 
 - Random: An agent that randomly chooses a move each turn.
-- MM_Null: CustomPlayer agent using fixed-depth minimax search and the null_score heuristic
-- MM_Open: CustomPlayer agent using fixed-depth minimax search and the open_move_score heuristic
-- MM_Improved: CustomPlayer agent using fixed-depth minimax search and the improved_score heuristic
-- AB_Null: CustomPlayer agent using fixed-depth alpha-beta search and the null_score heuristic
-- AB_Open: CustomPlayer agent using fixed-depth alpha-beta search and the open_move_score heuristic
-- AB_Improved: CustomPlayer agent using fixed-depth alpha-beta search and the improved_score heuristic
+- MM_Open: MinimaxPlayer agent using the open_move_score heuristic with search depth 3
+- MM_Center: MinimaxPlayer agent using the center_score heuristic with search depth 3
+- MM_Improved: MinimaxPlayer agent using the improved_score heuristic with search depth 3
+- AB_Open: AlphaBetaPlayer using iterative deepening alpha-beta search and the open_move_score heuristic
+- AB_Center: AlphaBetaPlayer using iterative deepening alpha-beta search and the center_score heuristic
+- AB_Improved: AlphaBetaPlayer using iterative deepening alpha-beta search and the improved_score heuristic
 
 
 ## Game Visualization
