@@ -323,8 +323,7 @@ class Board(object):
 
             move_start = time_millis()
             time_left = lambda : time_limit - (time_millis() - move_start)
-            curr_move = self._active_player.get_move(
-                game_copy, legal_player_moves, time_left)
+            curr_move = self._active_player.get_move(game_copy, time_left)
             move_end = time_left()
 
             if curr_move is None:
