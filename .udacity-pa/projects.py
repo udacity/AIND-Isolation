@@ -8,6 +8,10 @@ SETTINGS = {
     "isolation": {
         "required": {
             "game_agent": {"ext": ["py"], "size": 0.2},
+        },
+        "optional": {
+            "heuristic_analysis": {"ext": ["pdf"], "size": 6.0},
+            "research_review": {"ext": ["pdf"], "size": 6.0},
         }
     },
     "competition": {
