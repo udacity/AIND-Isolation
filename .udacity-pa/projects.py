@@ -14,7 +14,7 @@ SETTINGS = {
             "research_review": {"ext": ["pdf"], "size": 6.0},
         }
     },
-    "competition": {
+    "isolation-pvp": {
         "required": {
             "competition_agent": {"ext": ["py"], "size": 0.2},
         },
@@ -73,7 +73,8 @@ def validate_file_info(pattern, lo=1, hi=1, size=6, ext=[]):
 def submit(options):
 
     project_name = options.args[0]
-    require_confirmation(RESUBMIT_MSG)
+    if project_name == 'isolation-pvp':
+        require_confirmation(RESUBMIT_MSG)
     patterns = SETTINGS.get(project_name, {})
     if not patterns:
         raise RuntimeError("")
@@ -87,4 +88,8 @@ def submit(options):
                  list(patterns.get("optional", {}).values()))
     max_size = sum([dict(info).get("size", 0) for info in file_info]) * 2**20
 
-    udacity.submit(nanodegree, project_name, filenames, max_zip_size=max_size)
+    udacity.submit(nanodegree,
+                   project_name,
+                   filenames, 
+                   environment = options.environment,
+                   max_zip_size=max_size)
