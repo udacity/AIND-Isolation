@@ -115,7 +115,7 @@ Before submitting your solution to a reviewer, you are required to submit your p
 
 Please see the instructions in the [AIND-Sudoku](https://github.com/udacity/AIND-Sudoku) project repository for installation and setup instructions. 
 
-To submit your code to the project assistant, run `udacity submit` from within the top-level directory of this project. You will be prompted for a username and password. If you login using google or facebook, follow the [instructions for using a jwt](https://project-assistant.udacity.com/auth_tokens/jwt_login).
+To submit your code to the project assistant, run `udacity submit isolation` from within the top-level directory of this project. You will be prompted for a username and password. If you login using google or facebook, follow the [instructions for using a jwt](https://project-assistant.udacity.com/auth_tokens/jwt_login).
 
 This process will create a zipfile in your top-level directory named `isolation-<id>.zip`. This is the file that you should submit to the Udacity reviews system.
 
