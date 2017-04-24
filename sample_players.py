@@ -234,6 +234,7 @@ class HumanPlayer():
         if not legal_moves:
             return (-1, -1)
 
+        print(game.to_string()) #display the board for the human player
         print(('\t'.join(['[%d] %s' % (i, str(move)) for i, move in enumerate(legal_moves)])))
 
         valid_choice = False
