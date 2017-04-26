@@ -27,9 +27,11 @@ NUM_MATCHES = 5  # number of matches against each opponent
 TIME_LIMIT = 150  # number of milliseconds before timeout
 
 DESCRIPTION = """
-This script evaluates the performance of the custom_score evaluation function
-against the `ID_Improved` agent baseline. `ID_CustomScore` is an agent using
-Iterative Deepening and the custom_score function defined in game_agent.py.
+This script evaluates the performance of the custom_score evaluation
+function against a baseline agent using alpha-beta search and iterative
+deepening (ID) called `AB_Improved`. The three `AB_Custom` agents use
+ID and alpha-beta search with the custom_score functions defined in
+game_agent.py.
 """
 
 Agent = namedtuple("Agent", ["player", "name"])
