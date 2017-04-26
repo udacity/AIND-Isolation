@@ -128,7 +128,7 @@ def center_score(game, player):
     if game.is_winner(player):
         return float("inf")
 
-    w, h = game.width, game.height
+    w, h = game.width / 2., game.height / 2.
     y, x = game.get_player_location(player)
     return float((h - y)**2 + (w - x)**2)
 
