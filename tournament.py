@@ -84,18 +84,14 @@ def play_matches(cpu_agents, test_agents, num_matches):
     total_forfeits = 0.
     total_matches = 2 * num_matches * len(cpu_agents)
 
-    print("\n{:^9}{:^13}{:^13}{:^13}{:^13}{:^13}".format(
-        "Match #", "Opponent", test_agents[0].name, test_agents[1].name,
-        test_agents[2].name, test_agents[3].name))
-    print("{:^9}{:^13} {:^5}| {:^5} {:^5}| {:^5} {:^5}| {:^5} {:^5}| {:^5}"
+    print(("\n{:^9}{:^13}" + "{:^13}" * len(test_agents)).format(
+        "Match #", "Opponent", *[a.name for a in test_agents]))
+    print(("{:^9}{:^13}" + " {:^5}| {:^5}" * len(test_agents))
           .format("", "", *(["Won", "Lost"] * 4)))
 
     for idx, agent in enumerate(cpu_agents):
-        wins = {test_agents[0].player: 0,
-                test_agents[1].player: 0,
-                test_agents[2].player: 0,
-                test_agents[3].player: 0,
-                agent.player: 0}
+        wins = dict((test_agent.player, 0) for test_agent in test_agents)
+        wins[agent.player] = 0
 
         print("{!s:^9}{:^13}".format(idx + 1, agent.name), end="", flush=True)
 
@@ -106,11 +102,11 @@ def play_matches(cpu_agents, test_agents, num_matches):
         _total = 2 * num_matches
         round_totals = sum([[wins[agent.player], _total - wins[agent.player]]
                             for agent in test_agents], [])
-        print(" {:^5}| {:^5} {:^5}| {:^5} {:^5}| {:^5} {:^5}| {:^5}"
+        print((" {:^5}| {:^5}" * len(test_agents))
               .format(*round_totals))
 
     print("-" * 74)
-    print("{:^9}{:^13}{:^13}{:^13}{:^13}{:^13}\n".format(
+    print(("{:^9}{:^13}" + "{:^13}" * len(test_agents) + "\n").format(
         "", "Win Rate:",
         *["{:.1f}%".format(100 * total_wins[a.player] / total_matches)
           for a in test_agents]
