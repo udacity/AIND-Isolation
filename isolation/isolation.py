@@ -353,8 +353,16 @@ class Board(object):
         ----------
         (player, list<[(int, int),]>, str)
             Return multiple including the winning player, the complete game
-            move history, and a string indicating the reason for losing
-            (e.g., timeout or invalid move).
+            move history, and a string indicating the reason for losing:
+              timeout:
+                losing player overused their time
+              illegal move:
+                losing player attempted an illegal move
+              forfeit:
+                losing player returned None or (-1, -1) for the move, even
+                though a legal move was available
+              loss:
+                player lost because there were no legal moves
         """
         move_history = []
 
@@ -378,8 +386,10 @@ class Board(object):
 
             if curr_move not in legal_player_moves:
                 if len(legal_player_moves) > 0:
-                    return self._inactive_player, move_history, "forfeit"
-                return self._inactive_player, move_history, "illegal move"
+                    if curr_move is None or curr_move == (-1, -1):
+                        return self._inactive_player, move_history, "forfeit"
+                    return self._inactive_player, move_history, "illegal move"
+                return self._inactive_player, move_history, "loss"
 
             move_history.append(list(curr_move))
 
