@@ -381,7 +381,8 @@ class Board(object):
             if curr_move is None:
                 curr_move = Board.NOT_MOVED
 
-            if move_end < 0:
+            # ignore_timeout is an attribute set to True on the human (interactive) player:
+            if move_end < 0 and not getattr(self._active_player, 'ignore_timeout', False):
                 return self._inactive_player, move_history, "timeout"
 
             if curr_move not in legal_player_moves:

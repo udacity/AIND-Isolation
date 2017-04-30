@@ -202,6 +202,10 @@ class GreedyPlayer():
 class HumanPlayer():
     """Player that chooses a move according to user's input."""
 
+    ignore_timeout = True
+
+    choice_characters = 'abcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*=+;:,'
+
     def get_move(self, game, time_left):
         """
         Select a move from the available legal moves based on user input at the
@@ -232,24 +236,22 @@ class HumanPlayer():
         """
         legal_moves = game.get_legal_moves()
         if not legal_moves:
+            print("No legal moves:")
+            print(game.to_pretty()[1])
             return (-1, -1)
 
-        print(game.to_string()) #display the board for the human player
-        print(('\t'.join(['[%d] %s' % (i, str(move)) for i, move in enumerate(legal_moves)])))
+        choices, s = game.to_pretty(choice_characters=self.choice_characters)
+        print()
+        print(s)
 
-        valid_choice = False
-        while not valid_choice:
-            try:
-                index = int(input('Select move index:'))
-                valid_choice = 0 <= index < len(legal_moves)
+        while True:
+            char = input('Select move character: ').lower()
+            if char not in choices:
+                print("Illegal move! Try again.")
+            else:
+                break
 
-                if not valid_choice:
-                    print('Illegal move! Try again.')
-
-            except ValueError:
-                print('Invalid index! Try again.')
-
-        return legal_moves[index]
+        return choices[char]
 
 
 if __name__ == "__main__":

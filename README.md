@@ -5,7 +5,7 @@
 
 ## Synopsis
 
-In this project, students will develop an adversarial search agent to play the game "Isolation".  Isolation is a deterministic, two-player game of perfect information in which the players alternate turns moving a single piece from one cell to another on a board.  Whenever either player occupies a cell, that cell becomes blocked for the remainder of the game.  The first player with no remaining legal moves loses, and the opponent is declared the winner.  These rules are implemented in the `isolation.Board` class provided in the repository. 
+In this project, students will develop an adversarial search agent to play the game "Isolation".  Isolation is a deterministic, two-player game of perfect information in which the players alternate turns moving a single piece from one cell to another on a board.  Whenever either player occupies a cell, that cell becomes blocked for the remainder of the game.  The first player with no remaining legal moves loses, and the opponent is declared the winner.  These rules are implemented in the `isolation.Board` class provided in the repository.
 
 This project uses a version of Isolation where each agent is restricted to L-shaped movements (like a knight in chess) on a rectangular grid (like a chess or checkerboard).  The agents can move to any open cell on the board that is 2-rows and 1-column or 2-columns and 1-row away from their current position on the board. Movements are blocked at the edges of the board (the board does not wrap around), however, the player can "jump" blocked or occupied spaces (just like a knight in chess).
 
@@ -115,7 +115,7 @@ The tournament opponents are listed below. (See also: sample heuristics and play
 
 Before submitting your solution to a reviewer, you are required to submit your project to Udacity's Project Assistant, which will provide some initial feedback.
 
-Please see the instructions in the [AIND-Sudoku](https://github.com/udacity/AIND-Sudoku) project repository for installation and setup instructions. 
+Please see the instructions in the [AIND-Sudoku](https://github.com/udacity/AIND-Sudoku) project repository for installation and setup instructions.
 
 To submit your code to the project assistant, run `udacity submit isolation` from within the top-level directory of this project. You will be prompted for a username and password. If you login using google or facebook, follow the [instructions for using a jwt](https://project-assistant.udacity.com/auth_tokens/jwt_login).
 
@@ -126,6 +126,18 @@ This process will create a zipfile in your top-level directory named `isolation-
 
 The `isoviz` folder contains a modified version of chessboard.js that can animate games played on a 7x7 board.  In order to use the board, you must run a local webserver by running `python -m http.server 8000` from your project directory (you can replace 8000 with another port number if that one is unavailable), then open your browser to `http://localhost:8000` and navigate to the `/isoviz/display.html` page.  Enter the move history of an isolation match (i.e., the array returned by the Board.play() method) into the text area and run the match.  Refresh the page to run a different game.  (Feel free to submit pull requests with improvements to isoviz.)
 
+## Play against the computer
+
+If you want to play against the computer, using one of the sample players or a player you implemented, try:
+
+```python
+$ python play_human.py custom_score MiniMaxPlayer
+```
+
+This plays using the `game_agent.MiniMaxPlayer` with the `game_agent.custom_score` scoring function.  The default
+player is `game_agent.AlphaBetaPlayer`.
+
+You can use the name of any scoring function or player in either the `game_agent` or `sample_players` module.  E.g., `python play_human.py open_move_score GreedyPlayer`
 
 ## PvP Competition
 
