@@ -295,6 +295,50 @@ class Board(object):
 
         return out
 
+    def to_pretty(self, symbols=['🔸', '🔹'], choice_characters='', empty='•', used='●'):
+        """Returns (choices, pretty_printed_board)
+
+        Like game.to_string(), but with different characters for empty/used places, and
+        shows legal moves for the active player.
+
+        Use game.to_pretty(choice_characters='abcdef...') to label all legal moves for
+        the active player.  Then the choices return value will look like:
+
+            {'a': (4, 2), 'b': (4, 4), ...}
+
+        For as many legal moves as there are.  This can be used to label the moves later
+        or as a human to input choose a move.
+
+        If choice_character is left empty then no moves will be labeled.
+        """
+        lines = []
+        p1_loc = self._board_state[-1]
+        p2_loc = self._board_state[-2]
+        active_symbol = symbols[0] if self.active_player is self._player_1 else symbols[1]
+        lines.append('Active player: {}'.format(active_symbol))
+        lines.append('   ' + ' '.join(str(n) for n in range(self.width)))
+        choice_index = 0
+        moves = dict((i + j * self.height, (i, j)) for (i, j) in self.get_legal_moves())
+        choices = {}
+        for i in range(self.height):
+            line = str(i) + ' '
+            for j in range(self.width):
+                idx = i + j * self.height
+                char = empty
+                if p1_loc == idx:
+                    char = symbols[0]
+                elif p2_loc == idx:
+                    char = symbols[1]
+                elif self._board_state[idx]:
+                    char = used
+                elif idx in moves and choice_index < len(choice_characters):
+                    char = choice_characters[choice_index]
+                    choices[char] = moves[idx]
+                    choice_index += 1
+                line += ' ' + char
+            lines.append(line)
+        return choices, '\n'.join(lines)
+
     def play(self, time_limit=TIME_LIMIT_MILLIS):
         """Execute a match between the players by alternately soliciting them
         to select a move and applying it in the game.
