@@ -72,6 +72,9 @@ def validate_file_info(pattern, lo=1, hi=1, size=6, ext=[]):
 
 def submit(options):
 
+    if len(options.args) == 0 or options.args[0] not in projects:
+        raise RuntimeError("You must specifiy 'isolation' or 'isolation-pvp' after 'udacity submit'.")
+
     project_name = options.args[0]
     if project_name == 'isolation-pvp':
         require_confirmation(RESUBMIT_MSG)
