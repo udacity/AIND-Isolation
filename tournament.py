@@ -16,6 +16,8 @@ import random
 import warnings
 
 from collections import namedtuple
+# from multiprocessing.pool import ThreadPool as Pool
+from multiprocessing import Pool
 
 from isolation import Board
 from sample_players import (RandomPlayer, open_move_score,
@@ -23,6 +25,7 @@ from sample_players import (RandomPlayer, open_move_score,
 from game_agent import (MinimaxPlayer, AlphaBetaPlayer, custom_score,
                         custom_score_2, custom_score_3)
 
+NUM_PROCS = 4
 NUM_MATCHES = 5  # number of matches against each opponent
 TIME_LIMIT = 150  # number of milliseconds before timeout
 
@@ -37,6 +40,15 @@ game_agent.py.
 Agent = namedtuple("Agent", ["player", "name"])
 
 
+def _run(*args):
+    idx, p1, p2, moves = args[0]
+    game = Board(p1, p2)
+    for m in moves:
+        game.apply_move(m)
+    winner, _, termination = game.play(time_limit=TIME_LIMIT)
+    return (idx, winner == p1), termination
+
+
 def play_round(cpu_agent, test_agents, win_counts, num_matches):
     """Compare the test agents to the cpu agent in "fair" matches.
 
@@ -46,27 +58,33 @@ def play_round(cpu_agent, test_agents, win_counts, num_matches):
     """
     timeout_count = 0
     forfeit_count = 0
+    pool = Pool(NUM_PROCS)
+
     for _ in range(num_matches):
 
-        games = sum([[Board(cpu_agent.player, agent.player),
-                      Board(agent.player, cpu_agent.player)]
-                    for agent in test_agents], [])
-
         # initialize all games with a random move and response
+        init_moves = []
+        init_game = Board("p1", "p2")
         for _ in range(2):
-            move = random.choice(games[0].get_legal_moves())
-            for game in games:
-                game.apply_move(move)
+            move = random.choice(init_game.get_legal_moves())
+            init_moves.append(move)
+            init_game.apply_move(move)
+
+        games = sum([[(2 * i, cpu_agent.player, agent.player, init_moves),
+                      (2 * i + 1, agent.player, cpu_agent.player, init_moves)]
+                    for i, agent in enumerate(test_agents)], [])
 
         # play all games and tally the results
-        for game in games:
-            winner, _, termination = game.play(time_limit=TIME_LIMIT)
+        for result, termination in pool.imap_unordered(_run, games):
+            game = games[result[0]]
+            winner = game[1] if result[1] else game[2]
+
             win_counts[winner] += 1
 
-        if termination == "timeout":
-            timeout_count += 1
-        elif winner not in test_agents and termination == "forfeit":
-            forfeit_count += 1
+            if termination == "timeout":
+                timeout_count += 1
+            elif winner not in test_agents and termination == "forfeit":
+                forfeit_count += 1
 
     return timeout_count, forfeit_count
 
