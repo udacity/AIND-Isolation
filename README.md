@@ -115,7 +115,7 @@ The tournament opponents are listed below. (See also: sample heuristics and play
 
 Before submitting your solution to a reviewer, you are required to submit your project to Udacity's Project Assistant, which will provide some initial feedback.
 
-Please see the instructions in the [AIND-Sudoku](https://github.com/udacity/AIND-Sudoku) project repository for installation and setup instructions. 
+Please see the instructions in the [AIND-Sudoku](https://github.com/udacity/AIND-Sudoku#submission) project repository for installation and setup instructions. 
 
 To submit your code to the project assistant, run `udacity submit isolation` from within the top-level directory of this project. You will be prompted for a username and password. If you login using google or facebook, follow the [instructions for using a jwt](https://project-assistant.udacity.com/faq).
 
