@@ -295,7 +295,7 @@ class Board(object):
 
         return out
 
-    def to_pretty(self, symbols=['🔸', '🔹'], choice_characters='', empty='•', used='●'):
+    def to_pretty(self, symbols=['🔸', '🔹'], choice_characters='', empty='·', used='●'):
         """Returns (choices, pretty_printed_board)
 
         Like game.to_string(), but with different characters for empty/used places, and
