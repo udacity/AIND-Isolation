@@ -1,0 +1,139 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <title>Empty Board Example</title>
+
+  <link rel="stylesheet" href="css/chessboard.css" />
+  <style>
+  #display {
+  	float: left;
+  	margin: 50px;
+  	padding: 0px 50px;
+  }
+  #board {
+  	width: 600px;
+  	display: inline-block;
+  	vertical-align: top;
+  }
+  #match {
+  	margin-left: 20px;
+  	width: 275px;
+  	display: inline-block;
+  	vertical-align: top;
+  }
+  </style>
+</head>
+<body style="font-family: monospace;">
+
+<div>
+	<form id="game_form">
+	  Player1:<br>
+	  <input type="text" name="player1" value="Player1">
+	  <br>
+	  Player2:<br>
+	  <input type="text" name="player2" value="Player2">
+	  <br>
+	  Move History:<br>
+	  <textarea rows="3" cols="120" name="moves" placeholder="[[0, 0], [3, 2], ...]"></textarea>
+	  <br>
+	  <input type="submit" id="runGame" value="Run Game">
+	</form> 
+</div>
+
+<div id="display">
+	<div id="match">
+		<table id="moves" style="text-align: center;"></table>
+	</div>
+	<div id="board"></div>
+</div>
+
+<script src="js/json3.min.js"></script>
+<script src="js/jquery-1.10.1.min.js"></script>
+<script src="js/chessboard.js"></script>
+<script>
+function ind2alpha(xy) {
+	var alpha = "abcdefg";
+	var num = "1234567";
+	return alpha[xy[1]] + num[6 - xy[0]];
+};
+
+function runGame(board) {
+	
+	form = document.getElementById("game_form");
+	if ( !form.player1.value || !form.player2.value || !form.moves.value)
+		return;
+
+	document.getElementById("runGame").disabled = true;
+	game = {player1: form.player1.value,
+			player2: form.player2.value,
+			moves: JSON.parse(form.moves.value)};
+
+	var interval = 500;  // Length of the pause between moves (in milliseconds)
+
+	// Build the moves table by adding a header
+	var table = document.getElementById("moves");
+	var header = table.createTHead();
+	var row = header.insertRow();
+	var cell = row.insertCell();
+	cell.setAttribute("colspan", 2);
+	cell.innerHTML = "<h3>" + game["player1"] + " vs " + game["player2"] + "</h3>";
+
+	// Add the pieces in their starting positions directly to the board
+	p0 = ind2alpha(game["moves"][0]);
+	p1 = ind2alpha(game["moves"][1]);
+	pos = {}
+	pos[p0] = "wN";
+	pos[p1] = "bN";
+	board.position(pos);
+	row = table.insertRow();
+	cell = row.insertCell();
+	cell.innerHTML = "(" +  game["moves"][0] + ")";
+	cell = row.insertCell();
+	cell.innerHTML = "(" + game["moves"][1] + ")";
+	idx = 0;
+
+	// Perform moves until the list is exhausted
+	timer = window.setInterval(function() { doMove() }, interval);
+
+	function doMove() {
+
+		var start = game["moves"][idx];
+		var end = game["moves"][idx + 2];
+		var move = ind2alpha(start) + "-" + ind2alpha(end);
+		board.move(move);
+
+		// Write the player location in the moves table
+		if (idx % 2 == 0) {
+			row = table.insertRow();
+			cell = row.insertCell();
+			cell.innerHTML = "(" + game["moves"][idx + 2] + ")";
+		} else {
+			cell = row.insertCell();
+			cell.innerHTML = "(" + game["moves"][idx + 2] + ")";
+		}
+
+		idx++;
+		// quit when the game is resolved
+		if (idx >= game["moves"].length - 2) {
+			var winCell = ind2alpha(game["moves"][idx + 1]);
+			var loseCell = ind2alpha(game["moves"][idx]);
+			board.finalize(winCell, loseCell);
+			window.clearInterval(timer);
+			return;
+		}
+	};
+};
+
+function init() {
+	var board = ChessBoard('board');
+	document.getElementById("game_form").addEventListener('submit', function(event) { 
+		event.preventDefault();
+		runGame(board); 
+	});
+};
+$(document).ready(init);
+</script>
+</body>
+</html>
