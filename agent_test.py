@@ -21,5 +21,29 @@ class IsolationTest(unittest.TestCase):
         self.game = isolation.Board(self.player1, self.player2)
 
 
-if __name__ == '__main__':
-    unittest.main()
+from game_agent import MinimaxPlayer
+from sample_players import GreedyPlayer
+
+def test1():
+    player1 = MinimaxPlayer(search_depth=1, name='p1')
+    player2 = MinimaxPlayer(search_depth=1, name='p2')
+    game = isolation.Board(player1, player2, height=4, width=4)
+    game.apply_move((2, 0))
+    game.apply_move((0, 1))
+    game.play(time_limit=1000000000)
+
+def test2():
+    player1 = MinimaxPlayer(search_depth=1)
+    player2 = MinimaxPlayer(search_depth=0)
+    game = isolation.Board(player1, player2, height=4, width=4)
+    game.apply_move((2, 0))
+    game.apply_move((0, 1))
+    game.apply_move((1, 2))
+    game.apply_move((2, 2))
+    game.apply_move((3, 1))
+    print(game.to_string())
+    print(player2.score(game, player1))
+test1()
+
+
+

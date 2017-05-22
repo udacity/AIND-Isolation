@@ -69,6 +69,12 @@ class Board(object):
         """
         return self._inactive_player
 
+    def player_1_loc(self):
+        return self.get_player_location(self._player_1)
+
+    def player_2_loc(self):
+        return self.get_player_location(self._player_2)
+
     def get_opponent(self, player):
         """Return the opponent of the supplied player.
 
@@ -201,8 +207,10 @@ class Board(object):
         """
         idx = move[0] + move[1] * self.height
         last_move_idx = int(self.active_player == self._player_2) + 1
+        if self._board_state[-last_move_idx]:
+            self._board_state[self._board_state[-last_move_idx]] = 'o' if self.active_player == self._player_2 else 'x'
         self._board_state[-last_move_idx] = idx
-        self._board_state[idx] = 1
+        self._board_state[idx] = 'O' if self.active_player == self._player_2 else 'X'
         self._board_state[-3] ^= 1
         self._active_player, self._inactive_player = self._inactive_player, self._active_player
         self.move_count += 1
@@ -247,20 +255,35 @@ class Board(object):
 
         return 0.
 
-    def __get_moves(self, loc):
+    def __get_moves(self, loc, mode=None):
         """Generate the list of possible moves for an L-shaped motion (like a
         knight in chess).
         """
         if loc == Board.NOT_MOVED:
             return self.get_blank_spaces()
 
-        r, c = loc
-        directions = [(-2, -1), (-2, 1), (-1, -2), (-1, 2),
-                      (1, -2), (1, 2), (2, -1), (2, 1)]
-        valid_moves = [(r + dr, c + dc) for dr, dc in directions
-                       if self.move_is_legal((r + dr, c + dc))]
-        random.shuffle(valid_moves)
-        return valid_moves
+        if not mode:
+            r, c = loc
+            directions = [(-2, -1), (-2, 1), (-1, -2), (-1, 2),
+                          (1, -2), (1, 2), (2, -1), (2, 1)]
+            valid_moves = [(r + dr, c + dc) for dr, dc in directions
+                           if self.move_is_legal((r + dr, c + dc))]
+            random.shuffle(valid_moves)
+            return valid_moves
+
+        #else:
+
+        #r, c = loc
+#
+        #valid_moves = [(r, _) for _ in range(0, self.width)] + \
+        #              [(_, c) for _ in range(0, self.height)] + \
+        #              [(_, _  r + c) for _ in range (0, min(self.height, self.width) - (r-c))] +\
+        #              [(_, _ - r + c) for _ in range(r - c, min(self.height, self.width + r - c))]
+#
+        #valid_moves = [(r + dr, c + dc) for dr, dc in directions
+        #               if self.move_is_legal((r + dr, c + dc))]
+        #random.shuffle(valid_moves)
+        #return valid_moves
 
     def print_board(self):
         """DEPRECATED - use Board.to_string()"""
@@ -284,12 +307,12 @@ class Board(object):
                 idx = i + j * self.height
                 if not self._board_state[idx]:
                     out += ' '
-                elif p1_loc == idx:
-                    out += symbols[0]
-                elif p2_loc == idx:
-                    out += symbols[1]
+                #elif p1_loc == idx:
+                #    out += symbols[0]
+                #elif p2_loc == idx:
+                #    out += symbols[1]
                 else:
-                    out += '-'
+                    out += (self._board_state[idx])
                 out += ' | '
             out += '\n\r'
 
@@ -322,7 +345,7 @@ class Board(object):
             game_copy = self.copy()
 
             move_start = time_millis()
-            time_left = lambda : time_limit - (time_millis() - move_start)
+            time_left = lambda: time_limit - (time_millis() - move_start)
             curr_move = self._active_player.get_move(game_copy, time_left)
             move_end = time_left()
 
