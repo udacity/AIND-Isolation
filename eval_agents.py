@@ -1,6 +1,7 @@
 
 from random import randint
-from game_agent import MinimaxPlayer, custom_score_2
+from game_agent import AlphaBetaPlayer, custom_score
+from sample_players import improved_score
 from collections import defaultdict
 
 def null_score(game, player):
@@ -172,8 +173,8 @@ if __name__ == "__main__":
 
     distri = defaultdict(int)
     # create an isolation board (by default 7x7)
-    player1 = MinimaxPlayer(search_depth=3, score_fn=custom_score_2)
-    player2 = GreedyPlayer()
+    player2 = AlphaBetaPlayer(search_depth=8, score_fn=improved_score)
+    player1 = AlphaBetaPlayer(search_depth=8, score_fn=custom_score)
 
     for i in range(1,50):
         print(i)
@@ -185,7 +186,7 @@ if __name__ == "__main__":
         game.apply_move((a, b))
         game.apply_move((c, d))
         winner, history, outcome = game.play(time_limit=1000000000)
-        distri[winner] += 1
+        distri[str(winner)+outcome] += 1
 
     # place player 1 on the board at row 2, column 3, then place player 2 on
     # the board at row 0, column 5; display the resulting board state.  Note
