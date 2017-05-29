@@ -215,7 +215,7 @@ class Board(object):
         """ Test whether the specified player has lost the game. """
         return player == self._active_player and not self.get_legal_moves(self._active_player)
 
-    def utility(self, player):
+    def utility(self, player=None):
         """Returns the utility of the current game state from the perspective
         of the specified player.
 
@@ -237,7 +237,9 @@ class Board(object):
             a value of -inf if the player has lost, and a value of 0
             otherwise.
         """
-        if not self.get_legal_moves(self._active_player):
+        player = player if player else self._active_player
+
+        if not self.get_legal_moves(player):
 
             if player == self._inactive_player:
                 return float("inf")
