@@ -66,6 +66,8 @@ def open_move_score(game, player):
     if game.is_winner(player):
         return float("inf")
 
+    print(game.player_1_loc(), game.player_2_loc())
+
     return float(len(game.get_legal_moves(player)))
 
 
