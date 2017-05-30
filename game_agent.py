@@ -243,7 +243,110 @@ class AlphaBetaPlayer(IsolationPlayer):
     """
 
     def get_move(self, game, time_left):
-        self.time_left = time_left
+        self.time_left = lambda: time_left() - 10
+
+        # Initialize the best move so that this function returns something
+        # in case the search fails due to timeout
+
+
+        search_depth = 1
+        return_move = (-1, -1)
+        while self.search_depth >= search_depth:
+            try:
+                # The try/except block will automatically catch the exception
+                # raised when the timer is about to expire.
+                move = self.alphabeta(game, search_depth)
+                if move == (-1, -1):
+                    print('Existential Crisis after {} moves with {}ms left'.format(search_depth, self.time_left()))
+                    return return_move
+                #elif will_win:
+                #    return_move = move
+                #    return return_move
+                else:
+                    return_move = move
+                search_depth += 1
+
+            except SearchTimeout:
+                print('timeing out at search depth {} at time {}'.format(search_depth - 1, self.time_left()))
+                return return_move
+
+        # Return the best move from the last completed search iteration
+        return return_move
+
+
+    def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
+        def recursive_alphabeta(player, game, depth, alpha, beta, is_max):
+            if depth <= 1:
+                return player.score(game, player)
+            legal_moves = game.get_legal_moves()
+            if not legal_moves:
+                return float('-inf') if is_max else float('inf')
+            if is_max:
+                running_score = float('-inf')
+                for legal_move in legal_moves:
+                    if player.time_left() < 0:
+                        print('Raising SearchTimeout, time left:{}'.format(self.time_left()))
+                        raise SearchTimeout
+                    running_score = max(running_score,
+                                        recursive_alphabeta(player=player,
+                                                            game=game.forecast_move(legal_move),
+                                                            depth=depth-1,
+                                                            alpha=alpha,
+                                                            beta=beta,
+                                                            is_max=(not is_max)))
+                    alpha = max(alpha, running_score)
+                    if beta <= alpha:
+                        break
+                return running_score
+            else:
+                running_score = float('inf')
+                for legal_move in legal_moves:
+                    if player.time_left() < 0:
+                        print('Raising SearchTimeout, time left:{}'.format(self.time_left()))
+                        raise SearchTimeout
+                    running_score = min(running_score,
+                                        recursive_alphabeta(player=player,
+                                                            game=game.forecast_move(legal_move),
+                                                            depth=depth-1,
+                                                            alpha=alpha,
+                                                            beta=beta,
+                                                            is_max=(not is_max)))
+                    beta = min(beta, running_score)
+                    if beta <= alpha:
+                        break
+                return running_score
+
+        selected_move = (-1, -1)
+        legal_moves = game.get_legal_moves()
+        if not legal_moves:
+            return selected_move
+        max_score = float('-inf')
+        for legal_move in legal_moves:
+            score = recursive_alphabeta(player=self,
+                                        game=game.forecast_move(legal_move),
+                                        depth=depth,
+                                        alpha=max_score,
+                                        beta=beta,
+                                        is_max=False)
+            if score > max_score:
+                max_score = score
+                selected_move = legal_move
+        if max_score == float('inf'):
+            pass
+            #raise SearchTimeout
+        return selected_move#, max_score == float('inf')
+
+
+
+
+class AlphaBetaPlayerUdacity(IsolationPlayer):
+    """Game-playing agent that chooses a move using iterative deepening minimax
+    search with alpha-beta pruning. You must finish and test this player to
+    make sure it returns a good move before the search time limit expires.
+    """
+
+    def get_move(self, game, time_left):
+        self.time_left = lambda: time_left() - 10
 
         # Initialize the best move so that this function returns something
         # in case the search fails due to timeout
@@ -262,54 +365,87 @@ class AlphaBetaPlayer(IsolationPlayer):
 
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
-        def recursive_alphabeta(player, game, depth, alpha, beta, is_max):
-            if depth <= 1:
-                return player.score(game, player)
-            legal_moves = game.get_legal_moves()
-            if not legal_moves:
-                return float('-inf') if is_max else float('inf')
-            if is_max:
-                running_score = float('-inf')
-                for legal_move in legal_moves:
-                    running_score = max(running_score,
-                                        recursive_alphabeta(player=player,
-                                                            game=game.forecast_move(legal_move),
-                                                            depth=depth-1,
-                                                            alpha=alpha,
-                                                            beta=beta,
-                                                            is_max=(not is_max)))
-                    alpha = max(alpha, running_score)
-                    if beta <= alpha:
-                        break
-                return running_score
-            else:
-                running_score = float('inf')
-                for legal_move in legal_moves:
-                    running_score = min(running_score,
-                                        recursive_alphabeta(player=player,
-                                                            game=game.forecast_move(legal_move),
-                                                            depth=depth-1,
-                                                            alpha=alpha,
-                                                            beta=beta,
-                                                            is_max=(not is_max)))
-                    beta = min(beta, running_score)
-                    if beta <= alpha:
-                        break
-                return running_score
 
-        selected_move = (-1,1)
+        search_depth = 1
+        return_move = (-1, -1)
+        while depth >= search_depth:
+            try:
+                # The try/except block will automatically catch the exception
+                # raised when the timer is about to expire.
+                selected_move = (-1, -1)
+                legal_moves = game.get_legal_moves()
+                if not legal_moves:
+                    return selected_move
+                max_score = float('-inf')
+                for legal_move in legal_moves:
+                    score = self.recursive_alphabeta(
+                        game=game.forecast_move(legal_move),
+                        depth=search_depth,
+                        alpha=max_score,
+                        beta=beta,
+                        is_max=False)
+                    if score > max_score:
+                        max_score = score
+                        selected_move = legal_move
+                best_move = selected_move
+
+                if best_move == (-1, -1):
+                    print('Existential Crisis after {} moves with {}ms left'.format(search_depth, self.time_left()))
+                    return return_move
+                elif max_score == float('inf'):
+                    print("Player {} will win after maximum {} moves ({}ms left ont the clock)"
+                          .format(self.name, search_depth, self.time_left()))
+                    return return_move
+                else:
+                    return_move = best_move
+
+                print('Searching at depth {} with {:.2f}ms left, suggesting move: {}'.
+                      format(search_depth, self.time_left(), return_move))
+                search_depth += 1
+
+            except SearchTimeout:
+                print('timeing out at search depth {} at time {}'.format(search_depth-1, self.time_left()))
+                # Handle any actions required after timeout as needed
+                return return_move
+
+        return return_move
+
+    def recursive_alphabeta(self, game, depth, alpha, beta, is_max):
+        if depth <= 1:
+            return self.score(game, self)
         legal_moves = game.get_legal_moves()
+
         if not legal_moves:
-            return selected_move
-        max_score = float('-inf')
-        for legal_move in legal_moves:
-            score = recursive_alphabeta(player=self,
-                                        game=game.forecast_move(legal_move),
-                                        depth=depth,
-                                        alpha=max_score,
-                                        beta=beta,
-                                        is_max=False)
-            if score > max_score:
-                max_score = score
-                selected_move = legal_move
-        return selected_move
+            return float('-inf') if is_max else float('inf')
+        if is_max:
+            running_score = float('-inf')
+            for legal_move in legal_moves:
+                if self.time_left() < 0:
+                    print('Raising SearchTimeout, time left:{}'.format(self.time_left()))
+                    raise SearchTimeout
+                running_score = max(running_score,
+                                    self.recursive_alphabeta( game=game.forecast_move(legal_move),
+                                                        depth=depth - 1,
+                                                        alpha=alpha,
+                                                        beta=beta,
+                                                        is_max=(not is_max)))
+                alpha = max(alpha, running_score)
+                if beta <= alpha:
+                    break
+            return running_score
+        else:
+            running_score = float('inf')
+            for legal_move in legal_moves:
+                if self.time_left() < 0:
+                    print('Raising SearchTimeout, time left:{}'.format(self.time_left()))
+                    raise SearchTimeout
+                running_score = min(running_score,
+                                    self.recursive_alphabeta(game=game.forecast_move(legal_move),
+                                                        depth=depth - 1,
+                                                        alpha=alpha,
+                                                        beta=beta,
+                                                        is_max=(not is_max)))
+                beta = min(beta, running_score)
+                if beta <= alpha:
+                    break
+            return running_score
