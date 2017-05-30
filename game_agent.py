@@ -140,81 +140,49 @@ class MinimaxPlayer(IsolationPlayer):
         # Return the best move from the last completed search iteration
         return best_move
 
-    def minimax(self, game, depth):
-        v, move = self.my_minimax(game, depth, True)
-        return move
 
-
-    def my_minimax(self, game, depth, maximizer):
-        if self.time_left() < self.TIMER_THRESHOLD:
-            raise SearchTimeout()
-
-        if depth == 0:
-            return self.score(game, self), (-1, -1)
-
-        available_my_moves = game.get_legal_moves()
-        if len(available_my_moves) == 0:
-            return self.score(game, self), (-1, -1)
-
-        next_move = (-1, -1)
-        if maximizer == True:  # Maximizing player
-            maximizer = False
-            utility_score = float("-inf")
-            for move in available_my_moves:
-                new_game = game.forecast_move(move)
-                next_score, _ = self.my_minimax(new_game, depth - 1, maximizer)
-                if utility_score < next_score:
-                    utility_score = next_score
-                    next_move = move
-            return utility_score, next_move
-
-        else:
-            maximizer = True
-            utility_score = float("inf")
-            for move in available_my_moves:
-                new_game = game.forecast_move(move)
-                next_score, _ = self.my_minimax(new_game, depth - 1, maximizer)
-                if utility_score > next_score:
-                    utility_score = next_score
-                    next_move = move
-            return utility_score, next_move
-
-    def minimax2(self, game, depth: int) -> (int, int):
+    def minimax(self, game, depth: int) -> (int, int):
 
         def max_move(game, max_depth, currdepth=0):
             if self.time_left() < self.TIMER_THRESHOLD:
                 raise SearchTimeout()
             if max_depth > currdepth:
-                min_score = float('-inf')
+                has_timed_out = False
+                max_score = float('-inf')
                 legal_moves = game.get_legal_moves()
                 for legal_move in legal_moves:
-                    score = min_move(game.forecast_move(move=legal_move), max_depth=max_depth, currdepth=currdepth+1)
-                    if score > min_score:
-                        min_score = score
-                #print('{} {}:\n{}'.format(game._active_player == game._player_1, min_score,game.to_string()))
-                return min_score
+                    try:
+                        score, has_timed_out \
+                            = min_move(game.forecast_move(move=legal_move), max_depth=max_depth, currdepth=currdepth+1)
+                    except SearchTimeout as se:
+                        return max_score, True
+                    if score > max_score:
+                        max_score = score
+                return max_score, has_timed_out
             else:
-                min_score = self.score(game, self)
-                #print('{} {}:\n{}'.format(game._active_player == game._player_1, min_score, game.to_string()))
-                return min_score
+                max_score = self.score(game, self)
+                return max_score, False
 
 
         def min_move(game, max_depth, currdepth=0):
             if self.time_left() < self.TIMER_THRESHOLD:
                 raise SearchTimeout()
             if max_depth > currdepth:
-                max_score = float('inf')
+                has_timed_out = False
+                min_score = float('inf')
                 legal_moves = game.get_legal_moves()
                 for legal_move in legal_moves:
-                    score = max_move(game.forecast_move(move=legal_move), max_depth=max_depth, currdepth=currdepth+1)
-                    if score < max_score:
-                        max_score = score
-                #print('{} {}:\n{}'.format(game._active_player == game._player_1, max_score, game.to_string()))
-                return max_score
+                    try:
+                        score, has_timed_out \
+                            = max_move(game.forecast_move(move=legal_move), max_depth=max_depth, currdepth=currdepth+1)
+                    except SearchTimeout as se:
+                        return min_score, True
+                    if score < min_score:
+                        min_score = score
+                return min_score, False
             else:
-                max_score = self.score(game, self)
-                #print('{} {}:\n{}'.format(game._active_player == game._player_1, max_score, game.to_string()))
-                return max_score
+                min_score = self.score(game, self)
+                return min_score, False
 
 
         depth = depth - 1
@@ -226,7 +194,7 @@ class MinimaxPlayer(IsolationPlayer):
         recommended_move = None
         try:
             for legal_move in legal_moves:
-                score = min_move(game.forecast_move(move=legal_move), max_depth=depth)
+                score, has_timed_out = min_move(game.forecast_move(move=legal_move), max_depth=depth)
                 if score > max_score:
                     recommended_move = legal_move
                     max_score = score
@@ -243,73 +211,100 @@ class AlphaBetaPlayer(IsolationPlayer):
     """
 
     def get_move(self, game, time_left):
-        self.time_left = time_left
+        self.time_left = lambda: time_left() - 10
+
 
         # Initialize the best move so that this function returns something
         # in case the search fails due to timeout
-        best_move = (-1, -1)
 
-        try:
-            # The try/except block will automatically catch the exception
-            # raised when the timer is about to expire.
-            return self.alphabeta(game, self.search_depth)
 
-        except SearchTimeout:
-            pass  # Handle any actions required after timeout as needed
 
         # Return the best move from the last completed search iteration
-        return best_move
+        return self.alphabeta(game, self.search_depth)
 
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
-        def recursive_alphabeta(player, game, depth, alpha, beta, is_max):
-            if depth <= 1:
-                return player.score(game, player)
-            legal_moves = game.get_legal_moves()
-            if not legal_moves:
-                return float('-inf') if is_max else float('inf')
-            if is_max:
-                running_score = float('-inf')
-                for legal_move in legal_moves:
-                    running_score = max(running_score,
-                                        recursive_alphabeta(player=player,
-                                                            game=game.forecast_move(legal_move),
-                                                            depth=depth-1,
-                                                            alpha=alpha,
-                                                            beta=beta,
-                                                            is_max=(not is_max)))
-                    alpha = max(alpha, running_score)
-                    if beta <= alpha:
-                        break
-                return running_score
-            else:
-                running_score = float('inf')
-                for legal_move in legal_moves:
-                    running_score = min(running_score,
-                                        recursive_alphabeta(player=player,
-                                                            game=game.forecast_move(legal_move),
-                                                            depth=depth-1,
-                                                            alpha=alpha,
-                                                            beta=beta,
-                                                            is_max=(not is_max)))
-                    beta = min(beta, running_score)
-                    if beta <= alpha:
-                        break
-                return running_score
 
-        selected_move = (-1,1)
+        search_depth = 1
+        return_move = (-1, -1)
+        while depth > search_depth:
+            try:
+                # The try/except block will automatically catch the exception
+                # raised when the timer is about to expire.
+                selected_move = (-1, -1)
+                legal_moves = game.get_legal_moves()
+                if not legal_moves:
+                    return selected_move
+                max_score = float('-inf')
+                for legal_move in legal_moves:
+                    score = self.recursive_alphabeta(
+                        game=game.forecast_move(legal_move),
+                        depth=search_depth,
+                        alpha=max_score,
+                        beta=beta,
+                        is_max=False)
+                    if score > max_score:
+                        max_score = score
+                        selected_move = legal_move
+                best_move = selected_move
+
+                if best_move == (-1, -1):
+                    print('Existential Crisis after {} moves with {}ms left'.format(search_depth, self.time_left()))
+                    return return_move
+                elif max_score == float('inf'):
+                    print("Player {} will win after maximum {} moves ({}ms left ont the clock)"
+                          .format(self.name, search_depth, self.time_left()))
+                    return return_move
+                else:
+                    return_move = best_move
+
+                print('Searching at depth {} with {:.2f}ms left, suggesting move: {}'.
+                      format(search_depth, self.time_left(), return_move))
+                search_depth += 1
+
+            except SearchTimeout:
+                print('timeing out at search depth {} at time {}'.format(search_depth-1, self.time_left()))
+                # Handle any actions required after timeout as needed
+                return return_move
+
+        return return_move
+
+    def recursive_alphabeta(self, game, depth, alpha, beta, is_max):
+        if depth <= 1:
+            return self.score(game, self)
         legal_moves = game.get_legal_moves()
+
         if not legal_moves:
-            return selected_move
-        max_score = float('-inf')
-        for legal_move in legal_moves:
-            score = recursive_alphabeta(player=self,
-                                        game=game.forecast_move(legal_move),
-                                        depth=depth,
-                                        alpha=max_score,
-                                        beta=beta,
-                                        is_max=False)
-            if score > max_score:
-                max_score = score
-                selected_move = legal_move
-        return selected_move
+            return float('-inf') if is_max else float('inf')
+        if is_max:
+            running_score = float('-inf')
+            for legal_move in legal_moves:
+                if self.time_left() < 0:
+                    print('Raising SearchTimeout, time left:{}'.format(self.time_left()))
+                    raise SearchTimeout
+                running_score = max(running_score,
+                                    self.recursive_alphabeta( game=game.forecast_move(legal_move),
+                                                        depth=depth - 1,
+                                                        alpha=alpha,
+                                                        beta=beta,
+                                                        is_max=(not is_max)))
+                alpha = max(alpha, running_score)
+                if beta <= alpha:
+                    break
+            return running_score
+        else:
+            running_score = float('inf')
+            for legal_move in legal_moves:
+                if self.time_left() < 0:
+                    print('Raising SearchTimeout, time left:{}'.format(self.time_left()))
+                    raise SearchTimeout
+                running_score = min(running_score,
+                                    self.recursive_alphabeta(game=game.forecast_move(legal_move),
+                                                        depth=depth - 1,
+                                                        alpha=alpha,
+                                                        beta=beta,
+                                                        is_max=(not is_max)))
+                beta = min(beta, running_score)
+                if beta <= alpha:
+                    break
+            return running_score

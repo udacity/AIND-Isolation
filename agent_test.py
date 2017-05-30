@@ -25,11 +25,11 @@ from game_agent import MinimaxPlayer, AlphaBetaPlayer
 from sample_players import GreedyPlayer
 
 def test1():
-    player1 = AlphaBetaPlayer(search_depth=2, name='p1', score_fn=open_move_score)
-    player2 = AlphaBetaPlayer(search_depth=2, name='p2', score_fn=open_move_score)
+    player1 = AlphaBetaPlayer(search_depth=30, name='p1', score_fn=open_move_score)
+    player2 = MinimaxPlayer()
     game = isolation.Board(player1, player2, height=9, width=9)
-    game._board_state = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 60]
-    game.play(time_limit=1000000000)
+    print(game.play(time_limit=1000))
+    print(game.to_string())
 
 def test2():
     player1 = MinimaxPlayer(search_depth=1)

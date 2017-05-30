@@ -312,7 +312,7 @@ class Board(object):
                 #elif p2_loc == idx:
                 #    out += symbols[1]
                 else:
-                    out += (self._board_state[idx])
+                    out += str(self._board_state[idx])
                 out += ' | '
             out += '\n\r'
 
@@ -348,6 +348,7 @@ class Board(object):
             time_left = lambda: time_limit - (time_millis() - move_start)
             curr_move = self._active_player.get_move(game_copy, time_left)
             move_end = time_left()
+            print('time left at move_end:{}'.format(move_end))
 
             if curr_move is None:
                 curr_move = Board.NOT_MOVED
@@ -357,9 +358,10 @@ class Board(object):
 
             if curr_move not in legal_player_moves:
                 if len(legal_player_moves) > 0:
-                    return self._inactive_player, move_history, "forfeit"
+                    return self._inactive_player, move_history, curr_move, "forfeit"
                 return self._inactive_player, move_history, "illegal move"
 
             move_history.append(list(curr_move))
 
             self.apply_move(curr_move)
+            print(self.to_string())
