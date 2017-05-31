@@ -4,6 +4,10 @@ and include the results in your report.
 """
 import random
 
+class FoundWinningMoveException(Exception):
+    def __init__(self, move):
+        self.move = move
+
 
 class SearchTimeout(Exception):
     """Subclass base exception for code clarity. """
@@ -269,6 +273,8 @@ class AlphaBetaPlayer(IsolationPlayer):
             except SearchTimeout:
                 #print('timeing out at search depth {} at time {}'.format(search_depth - 1, self.time_left()))
                 return return_move
+            except FoundWinningMoveException as fwme:
+                return fwme.move
 
         # Return the best move from the last completed search iteration
         return return_move
@@ -284,35 +290,25 @@ class AlphaBetaPlayer(IsolationPlayer):
         if not legal_moves:
             return float('-inf') if is_max else float('inf')
 
-        if is_max:
-            running_score = float('-inf')
-            for legal_move in legal_moves:
-                running_score = max(running_score,
-                                    self.recursive_alphabeta(game=game.forecast_move(legal_move),
-                                                             depth=depth - 1,
-                                                             alpha=alpha,
-                                                             beta=beta,
-                                                             is_max=(not is_max)))
+        running_score = float('inf') * ((-1) ** float(is_max))
+        for legal_move in legal_moves:
+            recursive_score = self.recursive_alphabeta(game=game.forecast_move(legal_move),
+                                                       depth=depth - 1,
+                                                       alpha=alpha,
+                                                       beta=beta,
+                                                       is_max=(not is_max))
+            if is_max:
+                running_score = max(running_score, recursive_score)
                 alpha = max(alpha, running_score)
-                if beta <= alpha:
-                    break
-            return running_score
-        else:
-            running_score = float('inf')
-            for legal_move in legal_moves:
-                running_score = min(running_score,
-                                    self.recursive_alphabeta(game=game.forecast_move(legal_move),
-                                                             depth=depth - 1,
-                                                             alpha=alpha,
-                                                             beta=beta,
-                                                             is_max=(not is_max)))
+            else:
+                running_score = min(running_score, recursive_score)
                 beta = min(beta, running_score)
-                if beta <= alpha:
-                    break
-            return running_score
+            if beta <= alpha:
+                break
+        return running_score
+
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
-
 
         #print('Called with depth {}'.format(depth))
 
@@ -327,12 +323,11 @@ class AlphaBetaPlayer(IsolationPlayer):
                                              alpha=max_score,
                                              beta=beta,
                                              is_max=False)
-            if score > max_score or (max_score == float('-inf')):
+            if score > max_score or (max_score==float('-inf')):
                 max_score = score
                 selected_move = legal_move
         if max_score == float('inf'):
-            pass
-            #raise SearchTimeout
+            raise FoundWinningMoveException(move=selected_move)
         return selected_move#, max_score == float('inf')
 
 
