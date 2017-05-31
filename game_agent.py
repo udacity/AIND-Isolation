@@ -9,6 +9,37 @@ class SearchTimeout(Exception):
     """Subclass base exception for code clarity. """
     pass
 
+
+def possible_moves_count(row, column, game):
+    total_moves = (8
+                   - (1 if (column < 2 or row < 1) else 0)  # 10 o'clock blocked
+                   - (1 if (column < 1 or row < 2) else 0)  # 11 o'clock blocked
+                   - (1 if (column > game.width - 2 or row < 2) else 0)  # 1 o'clock blocked
+                   - (1 if (column > game.width - 3 or row < 1) else 0)  # 2 o'clock blocked
+                   - (1 if (column > game.width - 3 or row > game.height - 2) else 0)  # 4 o'clock blocked
+                   - (1 if (column > game.width - 2 or row > game.height - 3) else 0)  # 5 o'clock bocked
+                   - (1 if (column < 1 or row > game.height - 3) else 0)  # 7 o'clock blocked
+                   - (1 if (column < 2 or row > game.height - 2) else 0)  # 8 o'clock blocked
+                   )
+    return total_moves
+
+def legal_move_primary(game, player):
+    if len(game.get_legal_moves(game.active_player)) == 0:
+        return float('-inf') if player == game.active_player else float('inf')
+    else:
+        own_legal_moves = len(game.get_legal_moves(player=player))
+        opponent_legal_moves = len(game.get_legal_moves(player=game.get_opponent(player=player)))
+        return own_legal_moves - opponent_legal_moves
+
+def center_distance(game, player):
+    center_row = (float(game.height) - 1.) / 2.
+    center_col = (float(game.width) - 1.) / 2.
+    player_row, player_col = game.get_player_location(player=player)
+    oppo_row, oppo_col = game.get_player_location(player=game.get_opponent(player=player))
+    return (oppo_row-center_row) ** 2 + (oppo_col-center_col) ** 2 -\
+           (player_row-center_row) ** 2 - (player_col-center_col) ** 2
+
+
 def custom_score(game, player: 'IsolationPlayer') ->float:
 
     own_legal_moves = len(game.get_legal_moves(player=player))
@@ -18,12 +49,12 @@ def custom_score(game, player: 'IsolationPlayer') ->float:
 
 class IsolationPlayer:
 
-    def __init__(self, search_depth=3, score_fn=custom_score, timeout=10., name=None):
+    def __init__(self, search_depth=100, score_fn=custom_score, timeout=10., name=None):
         self.search_depth = search_depth
         self.score = score_fn
         self.time_left = None
         self.TIMER_THRESHOLD = timeout
-        self.name=name
+        self.name = name
 
 
 def custom_score_2(game, player):
@@ -37,56 +68,24 @@ def custom_score_2(game, player):
         return float(own_legal_moves - opponent_legal_moves)
 
 
-    """Calculate the heuristic value of a game state from the point of view
-    of the given player.
-
-    Note: this function should be called from within a Player instance as
-    `self.score()` -- you should not need to call this function directly.
-
-    Parameters
-    ----------
-    game : `isolation.Board`
-        An instance of `isolation.Board` encoding the current state of the
-        game (e.g., player locations and blocked cells).
-
-    player : object
-        A player instance in the current game (i.e., an object corresponding to
-        one of the player objects `game.__player_1__` or `game.__player_2__`.)
-
-    Returns
-    -------
-    float
-        The heuristic value of the current game state to the specified player.
-    """
-    # TODO: finish this function!
-    raise NotImplementedError
-
-
 def custom_score_3(game, player):
-    """Calculate the heuristic value of a game state from the point of view
-    of the given player.
 
-    Note: this function should be called from within a Player instance as
-    `self.score()` -- you should not need to call this function directly.
+    opponent = game.get_opponent(player)
+    own_legal_moves = len(game.get_legal_moves(player=player))
+    opponent_legal_moves = len(game.get_legal_moves(player=opponent))
+    if opponent_legal_moves == 0:
+        return float('inf')
+    elif own_legal_moves == 0:
+        return float('-inf')
+    else:
+        rowP, columnP = game.get_player_location(player)
+        rowO, columnO = game.get_player_location(opponent)
 
-    Parameters
-    ----------
-    game : `isolation.Board`
-        An instance of `isolation.Board` encoding the current state of the
-        game (e.g., player locations and blocked cells).
+        own_ratio = own_legal_moves / possible_moves_count(rowP, columnP, game)
 
-    player : object
-        A player instance in the current game (i.e., an object corresponding to
-        one of the player objects `game.__player_1__` or `game.__player_2__`.)
+        opponent_ratio = opponent_legal_moves / possible_moves_count(rowO, columnO, game)
 
-    Returns
-    -------
-    float
-        The heuristic value of the current game state to the specified player.
-    """
-    # TODO: finish this function!
-    raise NotImplementedError
-
+    return (own_ratio - opponent_ratio) * 8
 
 
 class MinimaxPlayer(IsolationPlayer):
@@ -243,7 +242,7 @@ class AlphaBetaPlayer(IsolationPlayer):
     """
 
     def get_move(self, game, time_left):
-        self.time_left = lambda: time_left() - 10
+        self.time_left = lambda: time_left() - self.TIMER_THRESHOLD
 
         # Initialize the best move so that this function returns something
         # in case the search fails due to timeout
@@ -257,8 +256,9 @@ class AlphaBetaPlayer(IsolationPlayer):
                 # raised when the timer is about to expire.
                 move = self.alphabeta(game, search_depth)
                 if move == (-1, -1):
-                    print('Existential Crisis after {} moves with {}ms left'.format(search_depth, self.time_left()))
-                    return return_move
+                    #print('Existential Crisis after {} moves with {}ms left'.format(search_depth, self.time_left()))
+                    break
+                    #return return_move
                 #elif will_win:
                 #    return_move = move
                 #    return return_move
@@ -267,74 +267,68 @@ class AlphaBetaPlayer(IsolationPlayer):
                 search_depth += 1
 
             except SearchTimeout:
-                print('timeing out at search depth {} at time {}'.format(search_depth - 1, self.time_left()))
+                #print('timeing out at search depth {} at time {}'.format(search_depth - 1, self.time_left()))
                 return return_move
 
         # Return the best move from the last completed search iteration
         return return_move
 
-
-    def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
-        def recursive_alphabeta(player, game, depth, alpha, beta, is_max):
-            if depth <= 1:
-                return player.score(game, player)
-            legal_moves = game.get_legal_moves()
-            if not legal_moves:
-                return float('-inf') if is_max else float('inf')
-            if is_max:
-                running_score = float('-inf')
-                for legal_move in legal_moves:
-                    if player.time_left() < 0:
-                        print('Raising SearchTimeout, time left:{}'.format(self.time_left()))
-                        raise SearchTimeout
-                    running_score = max(running_score,
-                                        recursive_alphabeta(player=player,
-                                                            game=game.forecast_move(legal_move),
-                                                            depth=depth-1,
-                                                            alpha=alpha,
-                                                            beta=beta,
-                                                            is_max=(not is_max)))
-                    alpha = max(alpha, running_score)
-                    if beta <= alpha:
-                        break
-                return running_score
-            else:
-                running_score = float('inf')
-                for legal_move in legal_moves:
-                    if player.time_left() < 0:
-                        print('Raising SearchTimeout, time left:{}'.format(self.time_left()))
-                        raise SearchTimeout
-                    running_score = min(running_score,
-                                        recursive_alphabeta(player=player,
-                                                            game=game.forecast_move(legal_move),
-                                                            depth=depth-1,
-                                                            alpha=alpha,
-                                                            beta=beta,
-                                                            is_max=(not is_max)))
-                    beta = min(beta, running_score)
-                    if beta <= alpha:
-                        break
-                return running_score
-
-        selected_move = (-1, -1)
+    def recursive_alphabeta(self, game, depth, alpha, beta, is_max):
+        if self.time_left() < 0:
+            # print('Raising SearchTimeout, time left:{}'.format(self.time_left()))
+            raise SearchTimeout
+        if depth <= 1:
+            return self.score(game, self)
         legal_moves = game.get_legal_moves()
         if not legal_moves:
-            return selected_move
+            return float('-inf') if is_max else float('inf')
+        if is_max:
+            running_score = float('-inf')
+            for legal_move in legal_moves:
+                running_score = max(running_score,
+                                    self.recursive_alphabeta(game=game.forecast_move(legal_move),
+                                                             depth=depth - 1,
+                                                             alpha=alpha,
+                                                             beta=beta,
+                                                             is_max=(not is_max)))
+                alpha = max(alpha, running_score)
+                if beta <= alpha:
+                    break
+            return running_score
+        else:
+            running_score = float('inf')
+            for legal_move in legal_moves:
+                running_score = min(running_score,
+                                    self.recursive_alphabeta(game=game.forecast_move(legal_move),
+                                                             depth=depth - 1,
+                                                             alpha=alpha,
+                                                             beta=beta,
+                                                             is_max=(not is_max)))
+                beta = min(beta, running_score)
+                if beta <= alpha:
+                    break
+            return running_score
+
+    def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
+
+        #print('Called with depth {}'.format(depth))
+
+        legal_moves = game.get_legal_moves()
+        if not legal_moves:
+            return -1, -1
         max_score = float('-inf')
         for legal_move in legal_moves:
-            score = recursive_alphabeta(player=self,
-                                        game=game.forecast_move(legal_move),
-                                        depth=depth,
-                                        alpha=max_score,
-                                        beta=beta,
-                                        is_max=False)
-            if score > max_score:
+            score = self.recursive_alphabeta(game=game.forecast_move(legal_move),
+                                             depth=depth,
+                                             alpha=alpha,
+                                             beta=beta,
+                                             is_max=False)
+            if score > max_score or (max_score == float('-inf')):
                 max_score = score
                 selected_move = legal_move
         if max_score == float('inf'):
             pass
-            #raise SearchTimeout
-        return selected_move#, max_score == float('inf')
+        return selected_move
 
 
 

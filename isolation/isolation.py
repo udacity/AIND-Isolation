@@ -10,6 +10,7 @@ be available to project reviewers.
 import random
 import timeit
 from copy import copy
+from game_agent import custom_score_3, custom_score_2, custom_score
 
 TIME_LIMIT_MILLIS = 150
 
@@ -205,12 +206,13 @@ class Board(object):
             A coordinate pair (row, column) indicating the next position for
             the active player on the board.
         """
+        mvcnt = self.height * self.width - len([_ for _ in self._board_state if _ == 0])
         idx = move[0] + move[1] * self.height
         last_move_idx = int(self.active_player == self._player_2) + 1
         if self._board_state[-last_move_idx]:
-            self._board_state[self._board_state[-last_move_idx]] = 'o' if self.active_player == self._player_2 else 'x'
+            self._board_state[self._board_state[-last_move_idx]] = ('o' if self.active_player == self._player_2 else 'x') + ('{:02}'.format(mvcnt))
         self._board_state[-last_move_idx] = idx
-        self._board_state[idx] = 'O' if self.active_player == self._player_2 else 'X'
+        self._board_state[idx] = (' O ' if self.active_player == self._player_2 else ' X ')
         self._board_state[-3] ^= 1
         self._active_player, self._inactive_player = self._inactive_player, self._active_player
         self.move_count += 1
@@ -306,7 +308,7 @@ class Board(object):
             for j in range(self.width):
                 idx = i + j * self.height
                 if not self._board_state[idx]:
-                    out += ' '
+                    out += '   '
                 #elif p1_loc == idx:
                 #    out += symbols[0]
                 #elif p2_loc == idx:
@@ -343,7 +345,6 @@ class Board(object):
 
             legal_player_moves = self.get_legal_moves()
             game_copy = self.copy()
-
             move_start = time_millis()
             time_left = lambda: time_limit - (time_millis() - move_start)
             curr_move = self._active_player.get_move(game_copy, time_left)
@@ -361,6 +362,6 @@ class Board(object):
                 return self._inactive_player, move_history, "illegal move"
 
             move_history.append(list(curr_move))
-            print(self.to_string())
+            #print(self.to_string())
 
             self.apply_move(curr_move)
