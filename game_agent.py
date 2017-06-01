@@ -35,21 +35,55 @@ def legal_move_primary(game, player):
         opponent_legal_moves = len(game.get_legal_moves(player=game.get_opponent(player=player)))
         return own_legal_moves - opponent_legal_moves
 
-def center_distance(game, player):
+def legal_move_relative(game, player):
+
+        own_legal_moves = len(game.get_legal_moves(player=player))
+        own_total_moves = possible_moves_count(*game.get_player_location(player), game)
+        opponent_legal_moves = len(game.get_legal_moves(player=game.get_opponent(player=player)))
+        opponent_total_moves = possible_moves_count(*game.get_player_location(player=game.get_opponent(player=player)), game)
+        return own_legal_moves/own_total_moves - opponent_legal_moves/opponent_total_moves
+
+def can_be_blocked(game, player):
+    if game.active_player == player:
+        afraid_of_blocking = -1
+    else:
+        afraid_of_blocking = 1
+
+    r,c = game.player_1_loc()
+    color1 = (r+c)%2
+
+    r,c = game.player_2_loc()
+    color2 = (r+c)%2
+
+    blocked = float(color1 == color2)
+    return afraid_of_blocking * blocked
+
+
+def norm_center_distance(game, player):
     center_row = (float(game.height) - 1.) / 2.
     center_col = (float(game.width) - 1.) / 2.
+    max_distance = center_row ** 2 + center_col ** 2
     player_row, player_col = game.get_player_location(player=player)
     oppo_row, oppo_col = game.get_player_location(player=game.get_opponent(player=player))
-    return (oppo_row-center_row) ** 2 + (oppo_col-center_col) ** 2 -\
-           (player_row-center_row) ** 2 - (player_col-center_col) ** 2
+    return (
+            (oppo_row-center_row) ** 2 + (oppo_col-center_col) ** 2 -
+            (player_row-center_row) ** 2 - (player_col-center_col) ** 2
+            ) / max_distance
 
 
 def custom_score(game, player: 'IsolationPlayer') ->float:
 
-    own_legal_moves = len(game.get_legal_moves(player=player))
-    if own_legal_moves == 0:
-        return -float('inf')
-    return float(len(game.get_legal_moves(player=player)))
+    return legal_move_primary(game, player) + can_be_blocked(game, player)
+
+
+def custom_score_2(game, player):
+
+    return legal_move_primary(game, player) + norm_center_distance(game, player)
+
+
+def custom_score_3(game, player):
+
+    return legal_move_primary(game, player) + legal_move_relative(game, player)
 
 class IsolationPlayer:
 
@@ -59,37 +93,6 @@ class IsolationPlayer:
         self.time_left = None
         self.TIMER_THRESHOLD = timeout
         self.name = name
-
-
-def custom_score_2(game, player):
-    own_legal_moves = len(game.get_legal_moves(player=player))
-    opponent_legal_moves = len(game.get_legal_moves(player=game.get_opponent(player=player)))
-    if opponent_legal_moves == 0:
-        return float('inf')
-    elif own_legal_moves == 0:
-        return float('-inf')
-    else:
-        return float(own_legal_moves - opponent_legal_moves)
-
-
-def custom_score_3(game, player):
-
-    opponent = game.get_opponent(player)
-    own_legal_moves = len(game.get_legal_moves(player=player))
-    opponent_legal_moves = len(game.get_legal_moves(player=opponent))
-    if opponent_legal_moves == 0:
-        return float('inf')
-    elif own_legal_moves == 0:
-        return float('-inf')
-    else:
-        rowP, columnP = game.get_player_location(player)
-        rowO, columnO = game.get_player_location(opponent)
-
-        own_ratio = own_legal_moves / possible_moves_count(rowP, columnP, game)
-
-        opponent_ratio = opponent_legal_moves / possible_moves_count(rowO, columnO, game)
-
-    return (own_ratio - opponent_ratio) * 8
 
 
 class MinimaxPlayer(IsolationPlayer):
