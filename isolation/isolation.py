@@ -206,13 +206,12 @@ class Board(object):
             A coordinate pair (row, column) indicating the next position for
             the active player on the board.
         """
-        mvcnt = self.height * self.width - len([_ for _ in self._board_state if _ == 0])
         idx = move[0] + move[1] * self.height
         last_move_idx = int(self.active_player == self._player_2) + 1
-        if self._board_state[-last_move_idx]:
-            self._board_state[self._board_state[-last_move_idx]] = ('o' if self.active_player == self._player_2 else 'x') + ('{:02}'.format(mvcnt))
-        self._board_state[-last_move_idx] = idx
         self._board_state[idx] = (' O ' if self.active_player == self._player_2 else ' X ')
+        if self._board_state[-last_move_idx]:
+            self._board_state[self._board_state[-last_move_idx]] = ('o' if self.active_player == self._player_2 else 'x') + ('{:02}'.format(self.move_count - 1))
+        self._board_state[-last_move_idx] = idx
         self._board_state[-3] ^= 1
         self._active_player, self._inactive_player = self._inactive_player, self._active_player
         self.move_count += 1
@@ -296,23 +295,16 @@ class Board(object):
         the location of each player and indicating which cells have been
         blocked, and which remain open.
         """
-        p1_loc = self._board_state[-1]
-        p2_loc = self._board_state[-2]
-
         col_margin = len(str(self.height - 1)) + 1
         prefix = "{:<" + "{}".format(col_margin) + "}"
-        offset = " " * (col_margin + 3)
-        out = offset + '   '.join(map(str, range(self.width))) + '\n\r'
+        offset = " " * (col_margin + 4)
+        out = offset + '     '.join(map(str, range(self.width))) + '\n\r'
         for i in range(self.height):
             out += prefix.format(i) + ' | '
             for j in range(self.width):
                 idx = i + j * self.height
                 if not self._board_state[idx]:
                     out += '   '
-                #elif p1_loc == idx:
-                #    out += symbols[0]
-                #elif p2_loc == idx:
-                #    out += symbols[1]
                 else:
                     out += (self._board_state[idx])
                 out += ' | '

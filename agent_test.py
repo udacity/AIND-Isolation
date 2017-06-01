@@ -21,8 +21,8 @@ class IsolationTest(unittest.TestCase):
         self.game = isolation.Board(self.player1, self.player2)
 
 
-from game_agent import MinimaxPlayer, AlphaBetaPlayer, possible_moves_count, center_distance, custom_score_3
-from sample_players import GreedyPlayer
+from game_agent import MinimaxPlayer, AlphaBetaPlayer, possible_moves_count, custom_score_3, custom_score, custom_score_2
+from sample_players import GreedyPlayer, improved_score
 
 def test1():
     player1 = AlphaBetaPlayer(search_depth=20, name='p1', score_fn=open_move_score)
@@ -61,7 +61,6 @@ def test4():
     game.apply_move((0,3))
     game.apply_move((4,4))
     print(game.to_string())
-    print(center_distance(game, game.active_player))
 
 def test5():
     player1 = AlphaBetaPlayer(search_depth=100, score_fn=open_move_score)
@@ -79,5 +78,33 @@ def test5():
     time_left = lambda: 150000 - (time_millis() - move_start)
     curr_move = game._active_player.get_move(game_copy, time_left)
     return curr_move
-print(test5())
+
+def test6():
+    player1 = AlphaBetaPlayer(search_depth=1, score_fn=custom_score)
+    player2 = AlphaBetaPlayer(search_depth=1, score_fn=custom_score_3)
+    game = isolation.Board(player1, player2, height=5, width=5)
+    game.apply_move((0, 3))
+    print(game.to_string())
+    game.apply_move((4, 4))
+    print(game.to_string())
+    game.apply_move((3, 2))
+    print(game.to_string())
+    game.apply_move((1, 1))
+    game.apply_move((2, 0))
+    game.apply_move((3, 0))
+    game.apply_move((1, 2))
+
+    print(game.to_string())
+    print(custom_score(game, game.active_player))
+    print(custom_score(game, game.inactive_player))
+    print(custom_score_2(game, game.active_player))
+    print(custom_score_2(game, game.inactive_player))
+    print(custom_score_3(game, game.active_player))
+    print(custom_score_3(game, game.inactive_player))
+    print(improved_score(game, game.active_player))
+    print(improved_score(game, game.inactive_player))
+
+
+
+print(test6())
 

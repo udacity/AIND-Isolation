@@ -33,7 +33,7 @@ def legal_move_primary(game, player):
     else:
         own_legal_moves = len(game.get_legal_moves(player=player))
         opponent_legal_moves = len(game.get_legal_moves(player=game.get_opponent(player=player)))
-        return own_legal_moves - opponent_legal_moves
+        return float(own_legal_moves - opponent_legal_moves)
 
 def legal_move_relative(game, player):
 
@@ -45,9 +45,9 @@ def legal_move_relative(game, player):
 
 def can_be_blocked(game, player):
     if game.active_player == player:
-        afraid_of_blocking = -1
-    else:
         afraid_of_blocking = 1
+    else:
+        afraid_of_blocking = -1
 
     r,c = game.player_1_loc()
     color1 = (r+c)%2
@@ -83,7 +83,7 @@ def custom_score_2(game, player):
 
 def custom_score_3(game, player):
 
-    return legal_move_primary(game, player) + legal_move_relative(game, player)
+    return legal_move_primary(game, player) # + legal_move_relative(game, player)
 
 class IsolationPlayer:
 
@@ -197,11 +197,9 @@ class MinimaxPlayer(IsolationPlayer):
                     score = min_move(game.forecast_move(move=legal_move), max_depth=max_depth, currdepth=currdepth+1)
                     if score > min_score:
                         min_score = score
-                #print('{} {}:\n{}'.format(game._active_player == game._player_1, min_score,game.to_string()))
                 return min_score
             else:
                 min_score = self.score(game, self)
-                #print('{} {}:\n{}'.format(game._active_player == game._player_1, min_score, game.to_string()))
                 return min_score
 
 
