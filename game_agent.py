@@ -13,6 +13,32 @@ class SearchTimeout(Exception):
     """Subclass base exception for code clarity. """
     pass
 
+def moves_intersect(game):
+    def mil(move, game):
+        idx = move[0] + move[1] * game.height
+        return (0 <= move[0] < game.height and 0 <= move[1] < game.width and
+                game._board_state[idx] == 0)
+
+    p1loc = game.player_1_loc()
+    p2loc = game.player_2_loc()
+    directions = [(-2, -1), (-2, 1), (-1, -2), (-1, 2),
+                  (1, -2), (1, 2), (2, -1), (2, 1)]
+    if p1loc is None:
+        p1moves = game.get_blank_spaces()
+    else:
+        r,c = p1loc
+        p1moves = [(r + dr, c + dc) for dr, dc in directions
+                       if mil((r + dr, c + dc), game)]
+
+
+    if p2loc is None:
+        p2moves = game.get_blank_spaces()
+    else:
+        r, c = p2loc
+        p2moves = [(r + dr, c + dc) for dr, dc in directions
+                   if mil((r + dr, c + dc), game)]
+    return bool(set(p1moves) & set(p2moves))
+
 
 def possible_moves_count(row, column, game):
     total_moves = (8
@@ -49,14 +75,14 @@ def can_be_blocked(game, player):
     else:
         afraid_of_blocking = -1
 
-    r,c = game.player_1_loc()
-    color1 = (r+c)%2
+    #r,c = game.player_1_loc()
+    #color1 = (r+c)%2
 
-    r,c = game.player_2_loc()
-    color2 = (r+c)%2
+    #r,c = game.player_2_loc()
+    #color2 = (r+c)%2
 
-    blocked = float(color1 == color2)
-    return afraid_of_blocking * blocked
+    #blocked = float(color1 == color2)
+    return afraid_of_blocking * float(moves_intersect(game))
 
 
 def norm_center_distance(game, player):
