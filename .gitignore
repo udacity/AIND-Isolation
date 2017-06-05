@@ -94,4 +94,6 @@ ENV/
 # Rope project settings
 .ropeproject
 
+*.swp
+
 # End of https://www.gitignore.io/api/python
