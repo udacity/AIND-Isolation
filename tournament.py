@@ -65,7 +65,7 @@ def play_round(cpu_agent, test_agents, win_counts, num_matches):
 
         if termination == "timeout":
             timeout_count += 1
-        elif winner not in test_agents and termination == "forfeit":
+        elif termination == "forfeit":
             forfeit_count += 1
 
     return timeout_count, forfeit_count
