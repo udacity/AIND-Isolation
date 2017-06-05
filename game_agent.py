@@ -327,12 +327,9 @@ class AlphaBetaPlayer(IsolationPlayer):
         try:
             # The try/except block will automatically catch the exception
             # raised when the timer is about to expire.
-            depth = 1
+            depth = 0
             while True:
                 best_move = self.alphabeta(game, depth)
-                if best_move != (-1, -1):
-                    return best_move
-
                 depth += 1
 
         except SearchTimeout:
@@ -394,10 +391,8 @@ class AlphaBetaPlayer(IsolationPlayer):
         if not legal_moves:
             return (-1, -1)
         
-        #print('Legal moves 2 >{}<'.format(legal_moves))
         # If all moves have the same score, pick the first one
-        val, best_move = self.get_max(game, depth, alpha, beta)
-        #print('Best move: >{}<'.format(best_move))
+        _, best_move = self.get_max(game, depth, alpha, beta)
 
         return best_move
     
