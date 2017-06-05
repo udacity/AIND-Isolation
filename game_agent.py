@@ -77,6 +77,23 @@ def legal_move_primary_opp14(game, player):
         return float(own_legal_moves - 1.4*opponent_legal_moves)
 
 
+def legal_move_primary_relsum(game, player):
+    if len(game.get_legal_moves(game.active_player)) == 0:
+        return float('-inf') if player == game.active_player else float('inf')
+    else:
+        own_legal_moves = len(game.get_legal_moves(player=player))
+        opponent_legal_moves = len(game.get_legal_moves(player=game.get_opponent(player=player)))
+        return float(own_legal_moves - opponent_legal_moves)/float(own_legal_moves + opponent_legal_moves)
+
+def legal_move_primary_relmax(game, player):
+    if len(game.get_legal_moves(game.active_player)) == 0:
+        return float('-inf') if player == game.active_player else float('inf')
+    else:
+        own_legal_moves = len(game.get_legal_moves(player=player))
+        opponent_legal_moves = len(game.get_legal_moves(player=game.get_opponent(player=player)))
+        return float(own_legal_moves - opponent_legal_moves)/max(own_legal_moves, opponent_legal_moves)
+
+
 def legal_move_relative(game, player):
         own_legal_moves = len(game.get_legal_moves(player=player))
         own_total_moves = possible_moves_count(*game.get_player_location(player), game)
@@ -112,12 +129,12 @@ def custom_score(game, player: 'IsolationPlayer') ->float:
 
 def custom_score_2(game, player):
 
-    return legal_move_primary_opp13(game, player)
+    return legal_move_primary_relmax(game, player)
 
 
 def custom_score_3(game, player):
 
-    return legal_move_primary_opp14(game, player)
+    return legal_move_primary_relsum(game, player)
 
 class IsolationPlayer:
 
