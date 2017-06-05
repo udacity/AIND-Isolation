@@ -3,6 +3,8 @@ test your agent's strength against a set of known agents using tournament.py
 and include the results in your report.
 """
 import random
+from functools import reduce
+
 
 
 class SearchTimeout(Exception):
@@ -61,8 +63,18 @@ def custom_score_2(game, player):
         The heuristic value of the current game state to the specified player.
     """
     # TODO: finish this function!
-    raise NotImplementedError
+    # raise NotImplementedError
+    if game.is_loser(player):
+        return float("-inf")
 
+    if game.is_winner(player):
+        return float("inf")
+
+    opp_player = game.get_opponent(player)
+    own_moves = len(game.get_legal_moves(player))
+    opp_moves = len(game.get_legal_moves(opp_player))
+    
+    return float(own_moves - opp_moves)
 
 def custom_score_3(game, player):
     """Calculate the heuristic value of a game state from the point of view
@@ -119,6 +131,7 @@ class IsolationPlayer:
         self.TIMER_THRESHOLD = timeout
 
 
+
 class MinimaxPlayer(IsolationPlayer):
     """Game-playing agent that chooses a move using depth-limited minimax
     search. You must finish and test this player to make sure it properly uses
@@ -158,6 +171,13 @@ class MinimaxPlayer(IsolationPlayer):
         # Initialize the best move so that this function returns something
         # in case the search fails due to timeout
         best_move = (-1, -1)
+
+        if not legal_moves:
+            return (-1, -1)
+
+
+        best_move = legal_moves[0]
+        best_score = float("-inf")
 
         try:
             # The try/except block will automatically catch the exception
@@ -212,8 +232,28 @@ class MinimaxPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        # reach end of search, evaluate score and return. Recursion exit point
+        if depth == 0:
+            return self.score(game, self), (-1, -1)
+
+        possible_moves = game.get_legal_moves()
+
+        # no possible moves. no reason to proceed
+        if len(possible_moves) == 0:
+            return float("inf") if game.is_winner(self) else float("-inf"), (-1, -1)
+
+        best_move = (-1, -1)
+        best_score = float("-inf") if maximizing_player else float("inf")
+
+        # evaluate all possible moves and find best one
+        for move in possible_moves:
+               new_score, new_move = self.minimax(game.forecast_move(move), depth - 1, not maximizing_player)
+               
+               if self.is_better_score(best_score, new_score, maximizing_player):
+                   best_move = move
+                   best_score = new_score
+        
+        return best_score, best_move
 
 
 class AlphaBetaPlayer(IsolationPlayer):
@@ -305,5 +345,41 @@ class AlphaBetaPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+
+        # reach end of search, evaluate score and return. Recursion exit point
+        if depth == 0:
+            return self.score(game, self), (-1, -1)
+
+        possible_moves = game.get_legal_moves()
+
+        # no possible moves. no reason to proceed
+        if not possible_moves:
+            return float("inf") if game.is_winner(self) else float("-inf"), (-1, -1)
+
+        best_move = (-1, -1)
+        best_score = float("-inf") if maximizing_player else float("inf")
+
+        for move in possible_moves:
+            new_score, new_move = self.alphabeta(game.forecast_move(move), depth - 1, alpha, beta, not maximizing_player)
+
+            if maximizing_player:
+                if new_score > best_score:
+                    best_score = new_score
+                    best_move = move
+
+                if new_score >= beta:
+                    return best_score, move
+
+                alpha = max(alpha, new_score)
+
+            else:
+                if new_score < best_score:
+                    best_score = new_score
+                    best_move = move
+
+                if new_score <= alpha:
+                    return best_score, move
+
+                beta = min(beta, new_score)
+
+        return best_score, best_move
