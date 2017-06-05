@@ -2,7 +2,6 @@
 This file contains the `Board` class, which implements the rules for the
 game Isolation as described in lecture, modified so that the players move
 like knights in chess rather than queens.
-
 You MAY use and modify this class, however ALL function signatures must
 remain compatible with the defaults provided, and none of your changes will
 be available to project reviewers.
@@ -10,7 +9,6 @@ be available to project reviewers.
 import random
 import timeit
 from copy import copy
-from game_agent import custom_score_3, custom_score_2, custom_score
 
 TIME_LIMIT_MILLIS = 150
 
@@ -18,20 +16,16 @@ TIME_LIMIT_MILLIS = 150
 class Board(object):
     """Implement a model for the game Isolation assuming each player moves like
     a knight in chess.
-
     Parameters
     ----------
     player_1 : object
         An object with a get_move() function. This is the only function
         directly called by the Board class for each player.
-
     player_2 : object
         An object with a get_move() function. This is the only function
         directly called by the Board class for each player.
-
     width : int (optional)
         The number of columns that the board should have.
-
     height : int (optional)
         The number of rows that the board should have.
     """
@@ -70,22 +64,14 @@ class Board(object):
         """
         return self._inactive_player
 
-    def player_1_loc(self):
-        return self.get_player_location(self._player_1)
-
-    def player_2_loc(self):
-        return self.get_player_location(self._player_2)
-
     def get_opponent(self, player):
         """Return the opponent of the supplied player.
-
         Parameters
         ----------
         player : object
             An object registered as a player in the current game. Raises an
             error if the supplied object is not registered as a player in
             this game.
-
         Returns
         -------
         object
@@ -109,13 +95,11 @@ class Board(object):
     def forecast_move(self, move):
         """Return a deep copy of the current game with an input move applied to
         advance the game one ply.
-
         Parameters
         ----------
         move : (int, int)
             A coordinate pair (row, column) indicating the next position for
             the active player on the board.
-
         Returns
         -------
         isolation.Board
@@ -127,13 +111,11 @@ class Board(object):
 
     def move_is_legal(self, move):
         """Test whether a move is legal in the current game state.
-
         Parameters
         ----------
         move : (int, int)
             A coordinate pair (row, column) indicating the next position for
             the active player on the board.
-
         Returns
         -------
         bool
@@ -151,12 +133,10 @@ class Board(object):
 
     def get_player_location(self, player):
         """Find the current location of the specified player on the board.
-
         Parameters
         ----------
         player : object
             An object registered as a player in the current game.
-
         Returns
         -------
         (int, int) or None
@@ -180,13 +160,11 @@ class Board(object):
 
     def get_legal_moves(self, player=None):
         """Return the list of all legal moves for the specified player.
-
         Parameters
         ----------
         player : object (optional)
             An object registered as a player in the current game. If None,
             return the legal moves for the active player on the board.
-
         Returns
         -------
         list<(int, int)>
@@ -199,7 +177,6 @@ class Board(object):
 
     def apply_move(self, move):
         """Move the active player to a specified location.
-
         Parameters
         ----------
         move : (int, int)
@@ -208,10 +185,8 @@ class Board(object):
         """
         idx = move[0] + move[1] * self.height
         last_move_idx = int(self.active_player == self._player_2) + 1
-        self._board_state[idx] = (' O ' if self.active_player == self._player_2 else ' X ')
-        if self._board_state[-last_move_idx]:
-            self._board_state[self._board_state[-last_move_idx]] = ('o' if self.active_player == self._player_2 else 'x') + ('{:02}'.format(self.move_count - 1))
         self._board_state[-last_move_idx] = idx
+        self._board_state[idx] = 1
         self._board_state[-3] ^= 1
         self._active_player, self._inactive_player = self._inactive_player, self._active_player
         self.move_count += 1
@@ -227,17 +202,14 @@ class Board(object):
     def utility(self, player):
         """Returns the utility of the current game state from the perspective
         of the specified player.
-
                     /  +infinity,   "player" wins
         utility =  |   -infinity,   "player" loses
                     \          0,    otherwise
-
         Parameters
         ----------
         player : object (optional)
             An object registered as a player in the current game. If None,
             return the utility for the active player on the board.
-
         Returns
         ----------
         float
@@ -256,35 +228,20 @@ class Board(object):
 
         return 0.
 
-    def __get_moves(self, loc, mode=None):
+    def __get_moves(self, loc):
         """Generate the list of possible moves for an L-shaped motion (like a
         knight in chess).
         """
         if loc == Board.NOT_MOVED:
             return self.get_blank_spaces()
 
-        if not mode:
-            r, c = loc
-            directions = [(-2, -1), (-2, 1), (-1, -2), (-1, 2),
-                          (1, -2), (1, 2), (2, -1), (2, 1)]
-            valid_moves = [(r + dr, c + dc) for dr, dc in directions
-                           if self.move_is_legal((r + dr, c + dc))]
-            random.shuffle(valid_moves)
-            return valid_moves
-
-        #else:
-
-        #r, c = loc
-#
-        #valid_moves = [(r, _) for _ in range(0, self.width)] + \
-        #              [(_, c) for _ in range(0, self.height)] + \
-        #              [(_, _  r + c) for _ in range (0, min(self.height, self.width) - (r-c))] +\
-        #              [(_, _ - r + c) for _ in range(r - c, min(self.height, self.width + r - c))]
-#
-        #valid_moves = [(r + dr, c + dc) for dr, dc in directions
-        #               if self.move_is_legal((r + dr, c + dc))]
-        #random.shuffle(valid_moves)
-        #return valid_moves
+        r, c = loc
+        directions = [(-2, -1), (-2, 1), (-1, -2), (-1, 2),
+                      (1, -2), (1, 2), (2, -1), (2, 1)]
+        valid_moves = [(r + dr, c + dc) for dr, dc in directions
+                       if self.move_is_legal((r + dr, c + dc))]
+        random.shuffle(valid_moves)
+        return valid_moves
 
     def print_board(self):
         """DEPRECATED - use Board.to_string()"""
@@ -295,18 +252,25 @@ class Board(object):
         the location of each player and indicating which cells have been
         blocked, and which remain open.
         """
+        p1_loc = self._board_state[-1]
+        p2_loc = self._board_state[-2]
+
         col_margin = len(str(self.height - 1)) + 1
         prefix = "{:<" + "{}".format(col_margin) + "}"
-        offset = " " * (col_margin + 4)
-        out = offset + '     '.join(map(str, range(self.width))) + '\n\r'
+        offset = " " * (col_margin + 3)
+        out = offset + '   '.join(map(str, range(self.width))) + '\n\r'
         for i in range(self.height):
             out += prefix.format(i) + ' | '
             for j in range(self.width):
                 idx = i + j * self.height
                 if not self._board_state[idx]:
-                    out += '   '
+                    out += ' '
+                elif p1_loc == idx:
+                    out += symbols[0]
+                elif p2_loc == idx:
+                    out += symbols[1]
                 else:
-                    out += (self._board_state[idx])
+                    out += '-'
                 out += ' | '
             out += '\n\r'
 
@@ -315,13 +279,11 @@ class Board(object):
     def play(self, time_limit=TIME_LIMIT_MILLIS):
         """Execute a match between the players by alternately soliciting them
         to select a move and applying it in the game.
-
         Parameters
         ----------
         time_limit : numeric (optional)
             The maximum number of milliseconds to allow before timeout
             during each turn.
-
         Returns
         ----------
         (player, list<[(int, int),]>, str)
@@ -337,8 +299,9 @@ class Board(object):
 
             legal_player_moves = self.get_legal_moves()
             game_copy = self.copy()
+
             move_start = time_millis()
-            time_left = lambda: time_limit - (time_millis() - move_start)
+            time_left = lambda : time_limit - (time_millis() - move_start)
             curr_move = self._active_player.get_move(game_copy, time_left)
             move_end = time_left()
 
@@ -354,6 +317,5 @@ class Board(object):
                 return self._inactive_player, move_history, "illegal move"
 
             move_history.append(list(curr_move))
-            #print(self.to_string())
 
             self.apply_move(curr_move)
