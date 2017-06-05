@@ -107,17 +107,17 @@ def norm_center_distance(game, player):
 
 def custom_score(game, player: 'IsolationPlayer') ->float:
 
-    return legal_move_primary_opp5(game, player)
+    return legal_move_primary(game, player)
 
 
 def custom_score_2(game, player):
 
-    return legal_move_primary_opp8(game, player)
+    return legal_move_primary_opp5(game, player)
 
 
 def custom_score_3(game, player):
 
-    return legal_move_primary(game, player)
+    return legal_move_primary_opp8(game, player)
 
 class IsolationPlayer:
 
