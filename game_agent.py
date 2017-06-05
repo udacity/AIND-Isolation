@@ -13,14 +13,13 @@ class SearchTimeout(Exception):
     """Subclass base exception for code clarity. """
     pass
 
-def moves_intersect(game):
+def moves_intersect(game): #returns True if the following possible moves of players overlap
     def mil(move, game):
         idx = move[0] + move[1] * game.height
-        return (0 <= move[0] < game.height and 0 <= move[1] < game.width and
-                game._board_state[idx] == 0)
+        return 0 <= move[0] < game.height and 0 <= move[1] < game.width and game._board_state[idx] == 0
 
-    p1loc = game.player_1_loc()
-    p2loc = game.player_2_loc()
+    p1loc = game.get_player_location(game._player_1)
+    p2loc = game.get_player_location(game._player_2)
     directions = [(-2, -1), (-2, 1), (-1, -2), (-1, 2),
                   (1, -2), (1, 2), (2, -1), (2, 1)]
     if p1loc is None:
@@ -29,7 +28,6 @@ def moves_intersect(game):
         r,c = p1loc
         p1moves = [(r + dr, c + dc) for dr, dc in directions
                        if mil((r + dr, c + dc), game)]
-
 
     if p2loc is None:
         p2moves = game.get_blank_spaces()
@@ -40,7 +38,7 @@ def moves_intersect(game):
     return bool(set(p1moves) & set(p2moves))
 
 
-def possible_moves_count(row, column, game):
+def possible_moves_count(row, column, game): # returns the number of possible moves if the board was empty
     total_moves = (8
                    - (1 if (column < 2 or row < 1) else 0)  # 10 o'clock blocked
                    - (1 if (column < 1 or row < 2) else 0)  # 11 o'clock blocked
@@ -53,6 +51,7 @@ def possible_moves_count(row, column, game):
                    )
     return total_moves
 
+
 def legal_move_primary(game, player):
     if len(game.get_legal_moves(game.active_player)) == 0:
         return float('-inf') if player == game.active_player else float('inf')
@@ -61,8 +60,24 @@ def legal_move_primary(game, player):
         opponent_legal_moves = len(game.get_legal_moves(player=game.get_opponent(player=player)))
         return float(own_legal_moves - opponent_legal_moves)
 
-def legal_move_relative(game, player):
+def legal_move_primary_opp5(game, player):
+    if len(game.get_legal_moves(game.active_player)) == 0:
+        return float('-inf') if player == game.active_player else float('inf')
+    else:
+        own_legal_moves = len(game.get_legal_moves(player=player))
+        opponent_legal_moves = len(game.get_legal_moves(player=game.get_opponent(player=player)))
+        return float(own_legal_moves - .5*opponent_legal_moves)
 
+def legal_move_primary_opp8(game, player):
+    if len(game.get_legal_moves(game.active_player)) == 0:
+        return float('-inf') if player == game.active_player else float('inf')
+    else:
+        own_legal_moves = len(game.get_legal_moves(player=player))
+        opponent_legal_moves = len(game.get_legal_moves(player=game.get_opponent(player=player)))
+        return float(own_legal_moves - .8*opponent_legal_moves)
+
+
+def legal_move_relative(game, player):
         own_legal_moves = len(game.get_legal_moves(player=player))
         own_total_moves = possible_moves_count(*game.get_player_location(player), game)
         opponent_legal_moves = len(game.get_legal_moves(player=game.get_opponent(player=player)))
@@ -75,13 +90,6 @@ def can_be_blocked(game, player):
     else:
         afraid_of_blocking = -1
 
-    #r,c = game.player_1_loc()
-    #color1 = (r+c)%2
-
-    #r,c = game.player_2_loc()
-    #color2 = (r+c)%2
-
-    #blocked = float(color1 == color2)
     return afraid_of_blocking * float(moves_intersect(game))
 
 
@@ -99,17 +107,17 @@ def norm_center_distance(game, player):
 
 def custom_score(game, player: 'IsolationPlayer') ->float:
 
-    return legal_move_primary(game, player) + can_be_blocked(game, player)
+    return legal_move_primary_opp5(game, player)
 
 
 def custom_score_2(game, player):
 
-    return legal_move_primary(game, player) + norm_center_distance(game, player)
+    return legal_move_primary_opp8(game, player)
 
 
 def custom_score_3(game, player):
 
-    return legal_move_primary(game, player) # + legal_move_relative(game, player)
+    return legal_move_primary(game, player)
 
 class IsolationPlayer:
 
