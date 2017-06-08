@@ -37,6 +37,8 @@ The Project Assistant sandbox for this project places some restrictions on the m
 The following example creates a game and illustrates the basic API.  You can run this example by activating your aind anaconda environment and executing the command `python sample_players.py`
 
     from isolation import Board
+    from sample_players import RandomPlayer
+    from sample_players import GreedyPlayer
 
     # create an isolation board (by default 7x7)
     player1 = RandomPlayer()
