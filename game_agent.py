@@ -185,11 +185,11 @@ class MinimaxPlayer(IsolationPlayer):
         # Initialize the best move so that this function returns something
         # in case the search fails due to timeout
         best_move = (-1, -1)
-
+        depth = 1
         try:
-            # The try/except block will automatically catch the exception
-            # raised when the timer is about to expire.
-            return self.minimax(game, self.search_depth)
+            while True:
+                best_move = self.minimax(game, depth)
+                depth += 1
 
         except SearchTimeout:
             pass  # Handle any actions required after timeout as needed
