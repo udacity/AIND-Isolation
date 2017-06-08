@@ -220,7 +220,7 @@ class MinimaxPlayer(IsolationPlayer):
             for move in available_my_moves:
                 new_game = game.forecast_move(move)
                 next_score, _ = self.my_minimax(new_game, depth - 1, maximizer)
-                if utility_score < next_score:
+                if utility_score <= next_score:
                     utility_score = next_score
                     next_move = move
             return utility_score, next_move
@@ -231,7 +231,7 @@ class MinimaxPlayer(IsolationPlayer):
             for move in available_my_moves:
                 new_game = game.forecast_move(move)
                 next_score, _ = self.my_minimax(new_game, depth - 1, maximizer)
-                if utility_score > next_score:
+                if utility_score >= next_score:
                     utility_score = next_score
                     next_move = move
             return utility_score, next_move
