@@ -375,7 +375,7 @@ class AlphaBetaPlayer(IsolationPlayer):
                                              alpha=max_score,
                                              beta=beta,
                                              is_max=False)
-            if score > max_score or (max_score==float('-inf')):
+            if score > max_score or (max_score == float('-inf')):
                 max_score = score
                 selected_move = legal_move
         if max_score == float('inf'):
