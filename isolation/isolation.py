@@ -8,7 +8,7 @@ remain compatible with the defaults provided, and none of your changes will
 be available to project reviewers.
 """
 import random
-import timeit
+import time
 from copy import copy
 
 TIME_LIMIT_MILLIS = 150
@@ -314,7 +314,7 @@ class Board(object):
         """
         move_history = []
 
-        time_millis = lambda: 1000 * timeit.default_timer()
+        time_millis = lambda: 1000 * time.process_time()
 
         while True:
 
