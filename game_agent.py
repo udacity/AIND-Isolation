@@ -3,6 +3,7 @@ test your agent's strength against a set of known agents using tournament.py
 and include the results in your report.
 """
 import random
+from sample_players import improved_score, open_move_score, center_score
 
 class FoundWinningMoveException(Exception):
     def __init__(self, move):
@@ -124,16 +125,19 @@ def norm_center_distance(game, player):
 
 def custom_score(game, player: 'IsolationPlayer') ->float:
 
+    return improved_score(game, player)
     return legal_move_primary(game, player)
 
 
 def custom_score_2(game, player):
 
+    return center_score(game, player)
     return legal_move_primary_relmax(game, player)
 
 
 def custom_score_3(game, player):
 
+    return open_move_score(game, player)
     return legal_move_primary_relsum(game, player)
 
 class IsolationPlayer:
