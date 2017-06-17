@@ -2,7 +2,6 @@
 This file contains the `Board` class, which implements the rules for the
 game Isolation as described in lecture, modified so that the players move
 like knights in chess rather than queens.
-
 You MAY use and modify this class, however ALL function signatures must
 remain compatible with the defaults provided, and none of your changes will
 be available to project reviewers.
@@ -17,20 +16,16 @@ TIME_LIMIT_MILLIS = 150
 class Board(object):
     """Implement a model for the game Isolation assuming each player moves like
     a knight in chess.
-
     Parameters
     ----------
     player_1 : object
         An object with a get_move() function. This is the only function
         directly called by the Board class for each player.
-
     player_2 : object
         An object with a get_move() function. This is the only function
         directly called by the Board class for each player.
-
     width : int (optional)
         The number of columns that the board should have.
-
     height : int (optional)
         The number of rows that the board should have.
     """
@@ -71,14 +66,12 @@ class Board(object):
 
     def get_opponent(self, player):
         """Return the opponent of the supplied player.
-
         Parameters
         ----------
         player : object
             An object registered as a player in the current game. Raises an
             error if the supplied object is not registered as a player in
             this game.
-
         Returns
         -------
         object
@@ -102,13 +95,11 @@ class Board(object):
     def forecast_move(self, move):
         """Return a deep copy of the current game with an input move applied to
         advance the game one ply.
-
         Parameters
         ----------
         move : (int, int)
             A coordinate pair (row, column) indicating the next position for
             the active player on the board.
-
         Returns
         -------
         isolation.Board
@@ -120,13 +111,11 @@ class Board(object):
 
     def move_is_legal(self, move):
         """Test whether a move is legal in the current game state.
-
         Parameters
         ----------
         move : (int, int)
             A coordinate pair (row, column) indicating the next position for
             the active player on the board.
-
         Returns
         -------
         bool
@@ -144,12 +133,10 @@ class Board(object):
 
     def get_player_location(self, player):
         """Find the current location of the specified player on the board.
-
         Parameters
         ----------
         player : object
             An object registered as a player in the current game.
-
         Returns
         -------
         (int, int) or None
@@ -173,13 +160,11 @@ class Board(object):
 
     def get_legal_moves(self, player=None):
         """Return the list of all legal moves for the specified player.
-
         Parameters
         ----------
         player : object (optional)
             An object registered as a player in the current game. If None,
             return the legal moves for the active player on the board.
-
         Returns
         -------
         list<(int, int)>
@@ -192,7 +177,6 @@ class Board(object):
 
     def apply_move(self, move):
         """Move the active player to a specified location.
-
         Parameters
         ----------
         move : (int, int)
@@ -218,17 +202,14 @@ class Board(object):
     def utility(self, player):
         """Returns the utility of the current game state from the perspective
         of the specified player.
-
                     /  +infinity,   "player" wins
         utility =  |   -infinity,   "player" loses
                     \          0,    otherwise
-
         Parameters
         ----------
         player : object (optional)
             An object registered as a player in the current game. If None,
             return the utility for the active player on the board.
-
         Returns
         ----------
         float
@@ -298,13 +279,11 @@ class Board(object):
     def play(self, time_limit=TIME_LIMIT_MILLIS):
         """Execute a match between the players by alternately soliciting them
         to select a move and applying it in the game.
-
         Parameters
         ----------
         time_limit : numeric (optional)
             The maximum number of milliseconds to allow before timeout
             during each turn.
-
         Returns
         ----------
         (player, list<[(int, int),]>, str)

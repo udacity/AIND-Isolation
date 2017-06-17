@@ -95,3 +95,15 @@ ENV/
 .ropeproject
 
 # End of https://www.gitignore.io/api/python
+
+*.iml
+
+*.xml
+
+*.zip
+
+*.json
+
+*.info
+
+*.histjson
