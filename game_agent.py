@@ -192,6 +192,9 @@ class MinimaxPlayer(IsolationPlayer):
     minimax to return a good move before the search time limit expires.
     """
 
+    def __init__(self, search_depth=100, score_fn=custom_score, timeout=10., name=None):
+        super().__init__(search_depth=search_depth, score_fn=score_fn, timeout=timeout, name=name)
+
     def get_move(self, game, time_left):
 
         self.time_left = time_left
@@ -254,6 +257,9 @@ class AlphaBetaPlayer(IsolationPlayer):
     search with alpha-beta pruning. You must finish and test this player to
     make sure it returns a good move before the search time limit expires.
     """
+
+    def __init__(self, search_depth=100, score_fn=custom_score, timeout=10., name=None):
+        super().__init__(search_depth=search_depth, score_fn=score_fn, timeout=timeout, name=name)
 
     def get_move(self, game, time_left):
         self.time_left = lambda: time_left() - self.TIMER_THRESHOLD
