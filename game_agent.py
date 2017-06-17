@@ -192,7 +192,8 @@ class MinimaxPlayer(IsolationPlayer):
     minimax to return a good move before the search time limit expires.
     """
 
-    def __init__(self, search_depth=100, score_fn=custom_score, timeout=10., name=None):
+    def __init__(self, search_depth=100, score_fn=custom_score, timeout=10., record_tree=False):
+        self.record_tree = record_tree
         super().__init__(search_depth=search_depth, score_fn=score_fn, timeout=timeout, name=name)
 
     def get_move(self, game, time_left):
@@ -202,11 +203,11 @@ class MinimaxPlayer(IsolationPlayer):
         # Initialize the best move so that this function returns something
         # in case the search fails due to timeout
         best_move = (-1, -1)
-        depth = 1
+        search_depth = 1
         try:
-            while depth <= self.search_depth:
-                best_move = self.minimax(game, depth)
-                depth += 1
+            while search_depth <= self.search_depth:
+                best_move = self.minimax(game, search_depth)
+                search_depth += 1
 
         except SearchTimeout:
             pass  # Handle any actions required after timeout as needed
@@ -224,31 +225,31 @@ class MinimaxPlayer(IsolationPlayer):
             raise SearchTimeout()
 
         if depth <= 0:
-            return self.score(game, self), (-1, -1)
-
-        legal_moves = game.get_legal_moves()
-        if len(legal_moves) == 0:
-            return self.score(game, self), (-1, -1)
-
-        best_move = (-1, -1)
-        if is_max:  # Maximizing player
-            is_max = False
-            running_score = float("-inf")
-            for legal_move in legal_moves:
-                new_game = game.forecast_move(legal_move)
-                score, _ = self.recursive_minimax(new_game, depth - 1, is_max)
-                if running_score <= score:
-                    running_score = score
-                    best_move = legal_move
+            running_score, best_move = self.score(game, self), (-1, -1)
         else:
-            is_max = True
-            running_score = float("inf")
-            for legal_move in legal_moves:
-                new_game = game.forecast_move(legal_move)
-                score, _ = self.recursive_minimax(new_game, depth - 1, is_max)
-                if running_score >= score:
-                    running_score = score
-                    best_move = legal_move
+            legal_moves = game.get_legal_moves()
+            if len(legal_moves) == 0:
+                running_score, best_move = self.score(game, self), (-1, -1)
+            else:
+                best_move = (-1, -1)
+                if is_max:  # Maximizing player
+                    is_max = False
+                    running_score = float("-inf")
+                    for legal_move in legal_moves:
+                        new_game = game.forecast_move(legal_move)
+                        score, _ = self.recursive_minimax(new_game, depth - 1, is_max)
+                        if running_score <= score:
+                            running_score = score
+                            best_move = legal_move
+                else:
+                    is_max = True
+                    running_score = float("inf")
+                    for legal_move in legal_moves:
+                        new_game = game.forecast_move(legal_move)
+                        score, _ = self.recursive_minimax(new_game, depth - 1, is_max)
+                        if running_score >= score:
+                            running_score = score
+                            best_move = legal_move
         return running_score, best_move
 
 
@@ -258,7 +259,8 @@ class AlphaBetaPlayer(IsolationPlayer):
     make sure it returns a good move before the search time limit expires.
     """
 
-    def __init__(self, search_depth=100, score_fn=custom_score, timeout=10., name=None):
+    def __init__(self, search_depth=100, score_fn=custom_score, timeout=10., name=None, record_tree=False):
+        self.record_tree = record_tree
         super().__init__(search_depth=search_depth, score_fn=score_fn, timeout=timeout, name=name)
 
     def get_move(self, game, time_left):
@@ -267,10 +269,9 @@ class AlphaBetaPlayer(IsolationPlayer):
         # Initialize the best move so that this function returns something
         # in case the search fails due to timeout
 
-
         search_depth = 1
         return_move = (-1, -1)
-        while self.search_depth >= search_depth:
+        while search_depth <= self.search_depth:
             try:
                 # The try/except block will automatically catch the exception
                 # raised when the timer is about to expire.
@@ -289,6 +290,7 @@ class AlphaBetaPlayer(IsolationPlayer):
             except SearchTimeout:
                 #timeout - return best_move of last completed round
                 return return_move
+
             except FoundWinningMoveException as fwme:
                 #prevents the agent from searching thousands of levels deep if the agent knows it will already win
                 #after three rounds
@@ -302,45 +304,46 @@ class AlphaBetaPlayer(IsolationPlayer):
         selected_move = (-1, -1)
         legal_moves = game.get_legal_moves()
         if not legal_moves:
-            return selected_move
-        max_score = float('-inf')
-        for legal_move in legal_moves:
-            score = self.recursive_alphabeta(game=game.forecast_move(legal_move),
-                                             depth=depth,
-                                             alpha=max_score,
-                                             beta=beta,
-                                             is_max=False)
-            if score > max_score or (max_score == float('-inf')):
-                max_score = score
-                selected_move = legal_move
-        if max_score == float('inf'):
-            #The move I found will guarantee me to win. I do not need to search deeper
-            raise FoundWinningMoveException(move=selected_move)
+            pass
+        else:
+            max_score = float('-inf')
+            for legal_move in legal_moves:
+                score = self.recursive_alphabeta(game=game.forecast_move(legal_move),
+                                                 depth=depth,
+                                                 alpha=max_score,
+                                                 beta=beta,
+                                                 is_max=False)
+                if score > max_score or (max_score == float('-inf')):
+                    max_score = score
+                    selected_move = legal_move
+            if max_score == float('inf'):
+                #The move I found will guarantee me to win. I do not need to search deeper
+                raise FoundWinningMoveException(move=selected_move)
         return selected_move
 
     def recursive_alphabeta(self, game, depth, alpha, beta, is_max):
         if self.time_left() < 0:
             raise SearchTimeout
         if depth <= 1:
-            return self.score(game, self)
-
-        legal_moves = game.get_legal_moves()
-        if not legal_moves:
-            return float('-inf') if is_max else float('inf')
-
-        running_score = float('inf') * ((-1) ** float(is_max))
-        for legal_move in legal_moves:
-            recursive_score = self.recursive_alphabeta(game=game.forecast_move(legal_move),
-                                                       depth=depth - 1,
-                                                       alpha=alpha,
-                                                       beta=beta,
-                                                       is_max=(not is_max))
-            if is_max:
-                running_score = max(running_score, recursive_score)
-                alpha = max(alpha, running_score)
+            running_score = self.score(game, self)
+        else:
+            legal_moves = game.get_legal_moves()
+            if not legal_moves:
+                running_score = float('-inf') if is_max else float('inf')
             else:
-                running_score = min(running_score, recursive_score)
-                beta = min(beta, running_score)
-            if beta <= alpha:
-                break
+                running_score = float('inf') * ((-1) ** float(is_max))
+                for legal_move in legal_moves:
+                    recursive_score = self.recursive_alphabeta(game=game.forecast_move(legal_move),
+                                                               depth=depth - 1,
+                                                               alpha=alpha,
+                                                               beta=beta,
+                                                               is_max=(not is_max))
+                    if is_max:
+                        running_score = max(running_score, recursive_score)
+                        alpha = max(alpha, running_score)
+                    else:
+                        running_score = min(running_score, recursive_score)
+                        beta = min(beta, running_score)
+                    if beta <= alpha:
+                        break
         return running_score
