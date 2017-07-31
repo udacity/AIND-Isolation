@@ -3,7 +3,7 @@ test your agent's strength against a set of known agents using tournament.py
 and include the results in your report.
 """
 import random
-
+import uuid
 
 class SearchTimeout(Exception):
     """Subclass base exception for code clarity. """
@@ -117,7 +117,10 @@ class IsolationPlayer:
         self.score = score_fn
         self.time_left = None
         self.TIMER_THRESHOLD = timeout
+        self.id = str(uuid.uuid4())
 
+    def getId(self):
+        return self.id
 
 class MinimaxPlayer(IsolationPlayer):
     """Game-playing agent that chooses a move using depth-limited minimax
