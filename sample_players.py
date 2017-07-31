@@ -7,6 +7,7 @@ own agent and example heuristic functions.
 """
 
 from random import randint
+import game_agent
 
 
 def null_score(game, player):
@@ -133,7 +134,7 @@ def center_score(game, player):
     return float((h - y)**2 + (w - x)**2)
 
 
-class RandomPlayer():
+class RandomPlayer(game_agent.IsolationPlayer):
     """Player that chooses a move randomly."""
 
     def get_move(self, game, time_left):
@@ -162,7 +163,7 @@ class RandomPlayer():
         return legal_moves[randint(0, len(legal_moves) - 1)]
 
 
-class GreedyPlayer():
+class GreedyPlayer(game_agent.IsolationPlayer):
     """Player that chooses next move to maximize heuristic score. This is
     equivalent to a minimax search agent with a search depth of one.
     """

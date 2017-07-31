@@ -36,6 +36,11 @@ game_agent.py.
 
 Agent = namedtuple("Agent", ["player", "name"])
 
+import multiprocessing
+
+def playGame(g):
+    winner, _, termination = g.play(time_limit=TIME_LIMIT)
+    return winner.getId(), termination
 
 def play_round(cpu_agent, test_agents, win_counts, num_matches):
     """Compare the test agents to the cpu agent in "fair" matches.
@@ -59,27 +64,28 @@ def play_round(cpu_agent, test_agents, win_counts, num_matches):
                 game.apply_move(move)
 
         # play all games and tally the results
-        for game in games:
-            winner, _, termination = game.play(time_limit=TIME_LIMIT)
-            win_counts[winner] += 1
+        with multiprocessing.Pool(multiprocessing.cpu_count()) as pool:
+            results = pool.map(playGame, games)
+            for winner, termination in results:
+                win_counts[winner] += 1
 
-            if termination == "timeout":
-                timeout_count += 1
-            elif termination == "forfeit":
-                forfeit_count += 1
+                if termination == "timeout":
+                    timeout_count += 1
+                elif termination == "forfeit":
+                    forfeit_count += 1
 
     return timeout_count, forfeit_count
 
 
 def update(total_wins, wins):
-    for player in total_wins:
-        total_wins[player] += wins[player]
+    for playerId in total_wins:
+        total_wins[playerId] += wins[playerId]
     return total_wins
 
 
 def play_matches(cpu_agents, test_agents, num_matches):
     """Play matches between the test agent and each cpu_agent individually. """
-    total_wins = {agent.player: 0 for agent in test_agents}
+    total_wins = {agent.player.getId(): 0 for agent in test_agents}
     total_timeouts = 0.
     total_forfeits = 0.
     total_matches = 2 * num_matches * len(cpu_agents)
@@ -88,8 +94,8 @@ def play_matches(cpu_agents, test_agents, num_matches):
     print("{:^9}{:^13} ".format("", "") +  ' '.join(['{:^5}| {:^5}'.format("Won", "Lost") for x in enumerate(test_agents)]))
 
     for idx, agent in enumerate(cpu_agents):
-        wins = {key: 0 for (key, value) in test_agents}
-        wins[agent.player] = 0
+        wins = {key.getId(): 0 for (key, value) in test_agents}
+        wins[agent.player.getId()] = 0
 
         print("{!s:^9}{:^13}".format(idx + 1, agent.name), end="", flush=True)
 
@@ -98,7 +104,7 @@ def play_matches(cpu_agents, test_agents, num_matches):
         total_forfeits += counts[1]
         total_wins = update(total_wins, wins)
         _total = 2 * num_matches
-        round_totals = sum([[wins[agent.player], _total - wins[agent.player]]
+        round_totals = sum([[wins[agent.player.getId()], _total - wins[agent.player.getId()]]
                             for agent in test_agents], [])
         print(' ' + ' '.join([
             '{:^5}| {:^5}'.format(
@@ -110,7 +116,7 @@ def play_matches(cpu_agents, test_agents, num_matches):
     print('{:^9}{:^13}'.format("", "Win Rate:") +
         ''.join([
             '{:^13}'.format(
-                "{:.1f}%".format(100 * total_wins[x[1].player] / total_matches)
+                "{:.1f}%".format(100 * total_wins[x[1].player.getId()] / total_matches)
             ) for x in enumerate(test_agents)
     ]))
 
