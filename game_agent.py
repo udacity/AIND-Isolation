@@ -293,12 +293,14 @@ class AlphaBetaPlayer(IsolationPlayer):
         # Initialize the best move so that this function returns something
         # in case the search fails due to timeout
         best_move = (-1, -1)
+        search_depth = self.search_depth
 
         try:
             # The try/except block will automatically catch the exception
             # raised when the timer is about to expire.
-            return self.alphabeta(game, self.search_depth)
-
+            while True:
+                best_move = self.alphabeta(game, search_depth)
+                search_depth += 1
         except SearchTimeout:
             pass  # Handle any actions required after timeout as needed
 
@@ -313,7 +315,7 @@ class AlphaBetaPlayer(IsolationPlayer):
             raise SearchTimeout()
         return not bool(game.get_legal_moves())
 
-    def min_value(self, game, depth):
+    def min_value(self, game, depth, alpha, beta):
         """ Return the value for a win (+inf) if the game is over,
         otherwise return the minimum value over all legal child
         nodes.
@@ -324,10 +326,13 @@ class AlphaBetaPlayer(IsolationPlayer):
         if not depth:
             return self.score(game, self)
         for m in game.get_legal_moves():
-            v = min(v, self.max_value(game.forecast_move(m), depth-1))
+            v = min(v, self.max_value(game.forecast_move(m), depth-1, alpha, beta))
+            if v <= alpha:
+                break
+            beta = min(beta, v)
         return v
 
-    def max_value(self, game, depth):
+    def max_value(self, game, depth, alpha, beta):
         """ Return the value for a loss (-inf) if the game is over,
         otherwise return the maximum value over all legal child
         nodes.
@@ -338,7 +343,10 @@ class AlphaBetaPlayer(IsolationPlayer):
         if not depth:
             return self.score(game, self)
         for m in game.get_legal_moves():
-            v = max(v, self.min_value(game.forecast_move(m), depth-1))
+            v = max(v, self.min_value(game.forecast_move(m), depth-1, alpha, beta))
+            if v >= beta:
+                break
+            alpha = max(alpha, v)
         return v
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
@@ -386,8 +394,5 @@ class AlphaBetaPlayer(IsolationPlayer):
                 each helper function or else your agent will timeout during
                 testing.
         """
-        if self.time_left() < self.TIMER_THRESHOLD:
-            raise SearchTimeout()
-
-        # TODO: finish this function!
-        raise NotImplementedError
+        return max(game.get_legal_moves(),
+                   key=lambda m: self.min_value(game.forecast_move(m), depth-1, alpha, beta))
