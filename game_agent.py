@@ -394,5 +394,7 @@ class AlphaBetaPlayer(IsolationPlayer):
                 each helper function or else your agent will timeout during
                 testing.
         """
-        return max(game.get_legal_moves(),
-                   key=lambda m: self.min_value(game.forecast_move(m), depth-1, alpha, beta))
+        v = self.max_value(game, depth, alpha, beta)
+        for m in game.get_legal_moves():
+            if self.score(game.forecast_move(m), self) == v:
+                return m
