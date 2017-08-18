@@ -11,15 +11,29 @@ import game_agent
 from importlib import reload
 
 
-class IsolationTest(unittest.TestCase):
+class IsolationAlphaBetaTest(unittest.TestCase):
     """Unit tests for isolation agents"""
 
     def setUp(self):
         reload(game_agent)
-        self.player1 = "Player1"
-        self.player2 = "Player2"
-        self.game = isolation.Board(self.player1, self.player2)
+        self.player1 = game_agent.AlphaBetaPlayer()
+        self.player2 = game_agent.AlphaBetaPlayer()
+        self.game = isolation.Board(self.player1, self.player2, 9, 9)
+        self.game._board_state = \
+            [0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 0, 1, 1, 1, 0, 0,
+             0, 0, 0, 1, 1, 1, 1, 0, 0,
+             0, 0, 0, 1, 1, 1, 0, 0, 0,
+             0, 0, 0, 1, 1, 1, 0, 0, 0,
+             0, 0, 0, 1, 0, 1, 1, 0, 0,
+             0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57, 41]
 
+    def test_alphabeta(self):
+        ab_move = self.player1.get_move(self.game, lambda: 10)
+
+        pass
 
 if __name__ == '__main__':
     unittest.main()
