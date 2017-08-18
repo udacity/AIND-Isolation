@@ -11,23 +11,29 @@ import game_agent
 from importlib import reload
 
 
-class IsolationMinimaxTest(unittest.TestCase):
+class IsolationAlphaBetaTest(unittest.TestCase):
     """Unit tests for isolation agents"""
 
     def setUp(self):
         reload(game_agent)
-        self.player1 = game_agent.MinimaxPlayer()
-        self.player2 = game_agent.MinimaxPlayer()
-        self.game = isolation.Board(self.player1, self.player2, 3, 2)
+        self.player1 = game_agent.AlphaBetaPlayer()
+        self.player2 = game_agent.AlphaBetaPlayer()
+        self.game = isolation.Board(self.player1, self.player2, 9, 9)
+        self.game._board_state = \
+            [0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 0, 1, 1, 1, 0, 0,
+             0, 0, 0, 1, 1, 1, 1, 0, 0,
+             0, 0, 0, 1, 1, 1, 0, 0, 0,
+             0, 0, 0, 1, 1, 1, 0, 0, 0,
+             0, 0, 0, 1, 0, 1, 1, 0, 0,
+             0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57, 41]
 
-    def test_first_move(self):
-        best_moves = {(0, 0), (2, 0), (0, 1)}
-        minimax_move = self.player1.get_move(self.game, lambda: 10)
+    def test_alphabeta(self):
+        ab_move = self.player1.get_move(self.game, lambda: 10)
 
-        print('Best move choices: {}'.format(list(best_moves)))
-        print('Your code chose: {}'.format(minimax_move))
-
-        assert minimax_move in best_moves, 'Move choice was not in best moves'
+        pass
 
 if __name__ == '__main__':
     unittest.main()

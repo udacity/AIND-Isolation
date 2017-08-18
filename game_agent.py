@@ -245,9 +245,6 @@ class MinimaxPlayer(IsolationPlayer):
                 each helper function or else your agent will timeout during
                 testing.
         """
-        if self.time_left() < self.TIMER_THRESHOLD:
-            raise SearchTimeout()
-
         return max(game.get_legal_moves(),
                    key=lambda m: self.min_value(game.forecast_move(m), depth-1))
 
@@ -293,7 +290,7 @@ class AlphaBetaPlayer(IsolationPlayer):
         # Initialize the best move so that this function returns something
         # in case the search fails due to timeout
         best_move = (-1, -1)
-        search_depth = self.search_depth
+        search_depth = 1
 
         try:
             # The try/except block will automatically catch the exception
@@ -320,34 +317,36 @@ class AlphaBetaPlayer(IsolationPlayer):
         otherwise return the minimum value over all legal child
         nodes.
         """
+        m = (-1, -1)
         v = float("inf")
         if self.terminal_test(game):
-            return v
+            return m, v
         if not depth:
-            return self.score(game, self)
+            return m, self.score(game, self)
         for m in game.get_legal_moves():
-            v = min(v, self.max_value(game.forecast_move(m), depth-1, alpha, beta))
+            v = min(v, self.max_value(game.forecast_move(m), depth-1, alpha, beta)[1])
             if v <= alpha:
                 break
             beta = min(beta, v)
-        return v
+        return m, v
 
     def max_value(self, game, depth, alpha, beta):
         """ Return the value for a loss (-inf) if the game is over,
         otherwise return the maximum value over all legal child
         nodes.
         """
+        m = (-1, -1)
         v = float("-inf")
         if self.terminal_test(game):
-            return v
+            return m, v
         if not depth:
-            return self.score(game, self)
+            return m, self.score(game, self)
         for m in game.get_legal_moves():
-            v = max(v, self.min_value(game.forecast_move(m), depth-1, alpha, beta))
+            v = max(v, self.min_value(game.forecast_move(m), depth-1, alpha, beta)[1])
             if v >= beta:
                 break
             alpha = max(alpha, v)
-        return v
+        return m, v
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
         """Implement depth-limited minimax search with alpha-beta pruning as
@@ -394,7 +393,4 @@ class AlphaBetaPlayer(IsolationPlayer):
                 each helper function or else your agent will timeout during
                 testing.
         """
-        v = self.max_value(game, depth, alpha, beta)
-        for m in game.get_legal_moves():
-            if self.score(game.forecast_move(m), self) == v:
-                return m
+        return self.max_value(game, depth, alpha, beta)[0]
