@@ -120,7 +120,7 @@ def play_matches(cpu_agents, test_agents, num_matches):
                "increasing the timeout margin for your agent.\n").format(
             total_timeouts))
     if total_forfeits:
-        print(("\nYour ID search forfeited {} games while there were still " +
+        print(("\nYour agents forfeited {} games while there were still " +
                "legal moves available to play.\n").format(total_forfeits))
 
 
