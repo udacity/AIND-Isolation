@@ -20,6 +20,10 @@ class IsolationTest(unittest.TestCase):
         self.player2 = "Player2"
         self.game = isolation.Board(self.player1, self.player2)
 
+    def test_example(self):
+        # TODO: All methods must start with "test_"
+        self.fail("Hello, World!")
+
 
 if __name__ == '__main__':
     unittest.main()
