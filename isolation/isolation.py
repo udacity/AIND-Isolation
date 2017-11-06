@@ -199,13 +199,30 @@ class Board(object):
             A coordinate pair (row, column) indicating the next position for
             the active player on the board.
         """
-        idx = move[0] + move[1] * self.height
-        last_move_idx = int(self.active_player == self._player_2) + 1
-        self._board_state[-last_move_idx] = idx
-        self._board_state[idx] = 1
-        self._board_state[-3] ^= 1
+        # idx = move[0] + move[1] * self.height
+        # last_move_idx = int(self.active_player == self._player_2) + 1
+        # self._board_state[-last_move_idx] = idx
+        # self._board_state[idx] = 1
+        # self._board_state[-3] ^= 1
+        self.set_position(move, self.active_player)
         self._active_player, self._inactive_player = self._inactive_player, self._active_player
         self.move_count += 1
+    
+    def set_position(self, move, player):
+        """Sets the position of a player without 
+        altering the game flow.
+
+        Parameters
+        ----------
+        move : (int, int)
+            A coordinate pair (row, column) indicating the next position for
+            the active player on the board.
+        """
+        idx = move[0] + move[1] * self.height
+        last_move_idx = int(player == self._player_2) + 1
+        self._board_state[-last_move_idx] = idx
+        self._board_state[idx] = 1
+        self._board_state[-3] ^= 1        
 
     def is_winner(self, player):
         """ Test whether the specified player has won the game. """
