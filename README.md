@@ -76,7 +76,9 @@ The following example creates a game and illustrates the basic API.  You can run
 
 ### Coding
 
-The steps below outline a suggested process for completing the project -- however, this is just a suggestion to help you get started.  A stub for writing unit tests is provided in the `agent_test.py` file (no local test cases are provided). (See the [unittest](https://docs.python.org/3/library/unittest.html#basic-example) module for information on getting started.)
+The steps below outline a suggested process for completing the project -- however, this is just a suggestion to help you get started.
+
+A stub for writing unit tests is provided in the [`test_game_agent.py`](tests/test_game_agent.py) file (no local test cases are provided). In order to run your tests, execute `python -m unittest` command (See the [unittest](https://docs.python.org/3/library/unittest.html#basic-example) module for information on getting started.)
 
 The primary mechanism for testing your code will be the Udacity Project Assistant command line utility.  You can install the Udacity-PA tool by activating your aind anaconda environment, then running `pip install udacity-pa`.  You can submit your code for scoring by running `udacity submit isolation`.  The project assistant server has a collection of unit tests that it will execute on your code, and it will provide feedback on any successes or failures.  You must pass all test cases in the project assistant before you can complete the project by submitting your report for review.
 
