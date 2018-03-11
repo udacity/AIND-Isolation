@@ -94,4 +94,11 @@ ENV/
 # Rope project settings
 .ropeproject
 
+# Idea
+.idea
+
+# Generated Files
+/isolation-*.zip
+/isolation-*.json
+
 # End of https://www.gitignore.io/api/python
