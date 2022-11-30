@@ -125,6 +125,17 @@ def play_matches(cpu_agents, test_agents, num_matches):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    
+    # Use parsed --seed argument for random number generation
+    # If no seed is given as an argument, create a new one by default
+    parser.add_argument('--seed', type=float, dest='seed', nargs='?', const=1, default=random.random())
+    
+    parsed_args = parser.parse_args()
+
+    # Seed PRNG
+    random_seed = parsed_args.seed
+    random.seed(random_seed)
 
     # Define two agents to compare -- these agents will play from the same
     # starting position against the same adversaries in the tournament
@@ -148,10 +159,12 @@ def main():
 
     print(DESCRIPTION)
     print("{:^74}".format("*************************"))
-    print("{:^74}".format("Playing Matches"))
+    print("{:^74}".format("Playing Matches with random seed "+str(random_seed)))
     print("{:^74}".format("*************************"))
     play_matches(cpu_agents, test_agents, NUM_MATCHES)
 
 
 if __name__ == "__main__":
+    # Only import argument parser if this file is being run directly
+    import argparse
     main()
